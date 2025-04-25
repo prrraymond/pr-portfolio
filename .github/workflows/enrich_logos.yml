@@ -1,0 +1,30 @@
+name: Enrich Logos
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 6 * * *'     # daily 06:00 UTC
+
+jobs:
+  update-logos:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run enrichment
+        env:
+          AIRTABLE_TOKEN:      \${{ secrets.AIRTABLE_TOKEN }}
+          AIRTABLE_BASE_ID:    \${{ secrets.AIRTABLE_BASE_ID }}
+          AIRTABLE_TABLE:      \${{ secrets.AIRTABLE_TABLE }}
+          BRANDFETCH_KEY:      \${{ secrets.BRANDFETCH_KEY }}
+          BRANDFETCH_CLIENT_ID:\${{ secrets.BRANDFETCH_CLIENT_ID }}
+        run: python scripts/enrich_logos.py
