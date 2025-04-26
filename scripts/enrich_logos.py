@@ -30,14 +30,28 @@ def best_logo(brand: dict) -> str | None:
         return (svg or asset["formats"][0])["src"]
 
 def fetch_logo_url(company: str) -> str | None:
-    r = requests.get(f"https://api.brandfetch.io/v2/search/{company}",
-                     params={"c": BF_CID}, timeout=10).json()
-    if not r:
+    res = requests.get(
+        f"https://api.brandfetch.io/v2/search/{company}",
+        params={"c": BF_CID},
+        timeout=10,
+    ).json()
+
+    # Guard: Brandfetch may return [] or {"error": "..."}
+    if not isinstance(res, list) or not res:
+        print(f"❌  No Brandfetch hit for '{company}' – skipping")
         return None
-    domain = r[0]["domain"]
-    brand = requests.get(f"https://api.brandfetch.io/v2/brands/{domain}",
-                         headers={"Authorization": f"Bearer {BF_KEY}"},
-                         timeout=10).json()
+
+    domain = res[0].get("domain")
+    if not domain:
+        print(f"❌  No domain in result for '{company}' – skipping")
+        return None
+
+    brand = requests.get(
+        f"https://api.brandfetch.io/v2/brands/{domain}",
+        headers={"Authorization": f"Bearer {BF_KEY}"},
+        timeout=10,
+    ).json()
+
     return best_logo(brand)
 
 updates = []
