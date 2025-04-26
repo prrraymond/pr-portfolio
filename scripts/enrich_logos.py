@@ -44,7 +44,6 @@ updates = []
 for rec in table.all():
     name = rec["fields"].get(NAME_FIELD)
     print("Processing", name)
-    ...
     if not url:
         print("No logo found for", name)
     f = rec["fields"]
