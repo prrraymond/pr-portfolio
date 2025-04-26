@@ -8,7 +8,7 @@ import os, time, requests
 from pyairtable import Table
 
 # Airtable fields — change if your base uses different names
-NAME_FIELD = "Company"
+NAME_FIELD = "Name"
 URL_FIELD  = "Logo URL"
 FILE_FIELD = "Logo File"
 
