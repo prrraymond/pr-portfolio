@@ -25,6 +25,5 @@ jobs:
           AIRTABLE_TOKEN:      ${{ secrets.AIRTABLE_TOKEN }}
           AIRTABLE_BASE_ID:    ${{ secrets.AIRTABLE_BASE_ID }}
           AIRTABLE_TABLE:      Tools
-          BRANDFETCH_KEY:      ${{ secrets.BRANDFETCH_KEY }}
-          BRANDFETCH_CLIENT_ID: ${{ secrets.BRANDFETCH_CLIENT_ID }}
+          OPENAI_API_KEY:   ${{ secrets.OPENAI_API_KEY }} 
         run: python scripts/enrich_logos.py
