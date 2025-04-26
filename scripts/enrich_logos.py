@@ -44,8 +44,6 @@ updates = []
 for rec in table.all():
     name = rec["fields"].get(NAME_FIELD)
     print("Processing", name)
-    if not url:
-        print("No logo found for", name)
     f = rec["fields"]
     if URL_FIELD in f or FILE_FIELD in f:
         continue
@@ -54,6 +52,7 @@ for rec in table.all():
         continue
     url = fetch_logo_url(name)
     if not url:
+        print("No logo found for", name)
         continue
     updates.append({"id": rec["id"],
                     "fields": {URL_FIELD: url,
