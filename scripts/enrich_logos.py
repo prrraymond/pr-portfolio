@@ -5,7 +5,10 @@ Requirements:
   pip install pyairtable requests
 """
 import os, time, requests
-from pyairtable import Table
+from pyairtable import Api
+api   = Api(os.getenv("AIRTABLE_TOKEN"))
+table = api.table(os.getenv("AIRTABLE_BASE_ID"), os.getenv("AIRTABLE_TABLE"))
+
 
 # Airtable fields — change if your base uses different names
 NAME_FIELD = "Name"
@@ -15,9 +18,9 @@ FILE_FIELD = "Logo File"
 MAX_BATCH  = 10          # Airtable PATCH limit
 PAUSE_SEC  = 1.0         # be nice to the API
 
-table = Table(os.getenv("AIRTABLE_TOKEN"),
-              os.getenv("AIRTABLE_BASE_ID"),
-              os.getenv("AIRTABLE_TABLE"))
+# table = Table(os.getenv("AIRTABLE_TOKEN"),
+#               os.getenv("AIRTABLE_BASE_ID"),
+#               os.getenv("AIRTABLE_TABLE"))
 BF_KEY = os.getenv("BRANDFETCH_KEY")
 BF_CID = os.getenv("BRANDFETCH_CLIENT_ID")
 
