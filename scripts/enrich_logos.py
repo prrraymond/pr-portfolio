@@ -21,6 +21,7 @@ table = Table(os.getenv("AIRTABLE_TOKEN"),
 BF_KEY = os.getenv("BRANDFETCH_KEY")
 BF_CID = os.getenv("BRANDFETCH_CLIENT_ID")
 
+
 def best_logo(brand: dict) -> str | None:
     for asset in brand.get("logos", []):
         if asset["type"] not in ("logo", "icon"):
@@ -41,6 +42,11 @@ def fetch_logo_url(company: str) -> str | None:
 
 updates = []
 for rec in table.all():
+    name = rec["fields"].get(NAME_FIELD)
+    print("Processing", name)
+    ...
+    if not url:
+        print("No logo found for", name)
     f = rec["fields"]
     if URL_FIELD in f or FILE_FIELD in f:
         continue
