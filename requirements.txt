@@ -1,5 +1,0 @@
-requests>=2.31
-tldextract>=3.6        # tiny library for domain validation
-openai>=1.14           # only if you enable ChatGPT fallback
-pyairtable==2.2.1
-
