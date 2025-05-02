@@ -37,6 +37,7 @@ export interface ContentItem {
   link?: string
   location: string
   skills: string[]
+  skillNames?: string // Added skillNames field for comma-separated skills
   skillCategories: string[]
   tools: ToolItem[]
   projectImages: ProjectImage[]

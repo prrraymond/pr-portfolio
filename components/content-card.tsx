@@ -5,19 +5,26 @@ import { Badge } from "@/components/ui/badge"
 import type { ContentItem } from "@/lib/types"
 import { getEraStyles } from "@/lib/era-styles"
 import Link from "next/link"
+import { getSkillsForDisplay } from "@/lib/skills-helper"
 
 interface ContentCardProps {
   item: ContentItem
+  isHomePage?: boolean // Add this prop to determine if it's the home page
 }
 
-export default function ContentCard({ item }: ContentCardProps) {
+export default function ContentCard({ item, isHomePage = false }: ContentCardProps) {
   // Use the item's own era for styling
   const eraStyles = getEraStyles(item.era)
+
+  // Get skills for display using our helper function
+  const displaySkills = getSkillsForDisplay(item)
 
   return (
     <Link href={`/experience/${item.id}`}>
       <Card
-        className={`w-72 md:w-80 h-96 overflow-hidden cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-xl netflix-card`}
+        className={`w-72 md:w-80 h-96 overflow-hidden cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-xl netflix-card ${
+          isHomePage ? "font-sans" : ""
+        }`}
         style={{
           background: eraStyles.container.includes("bg-") ? undefined : eraStyles.container,
           color: eraStyles.body.includes("text-") ? undefined : eraStyles.body,
@@ -33,24 +40,46 @@ export default function ContentCard({ item }: ContentCardProps) {
           />
         </div>
         <CardContent className="p-4">
-          <h3 className={`text-xl font-bold mb-2 ${eraStyles.header}`}>{item.title}</h3>
-          <p className={`text-sm mb-4 line-clamp-3 ${eraStyles.body}`}>{item.description}</p>
+          {/* Company logo and title row */}
+          <div className="flex items-center mb-2">
+            {item.logo && (
+              <div className="h-6 w-6 relative mr-2 flex-shrink-0">
+                <Image src={item.logo || "/placeholder.svg"} alt={item.company || ""} fill className="object-contain" />
+              </div>
+            )}
+            <h3 className={`text-xl ${isHomePage ? "font-bold font-sans" : eraStyles.header}`}>{item.title}</h3>
+          </div>
+
+          <p className={`text-sm mb-4 line-clamp-3 ${isHomePage ? "font-normal font-sans" : eraStyles.body}`}>
+            {item.description}
+          </p>
+
           <div className="flex flex-wrap gap-2">
-            {item.skills && item.skills.length > 0 ? (
+            {displaySkills.length > 0 ? (
               <>
-                {item.skills.slice(0, 3).map((skill) => (
-                  <Badge key={skill} variant="outline" className={eraStyles.badge}>
+                {displaySkills.slice(0, 3).map((skill, index) => (
+                  <Badge
+                    key={index}
+                    variant="outline"
+                    className={isHomePage ? "bg-gray-100 text-gray-800 hover:bg-gray-200 font-sans" : eraStyles.badge}
+                  >
                     {skill}
                   </Badge>
                 ))}
-                {item.skills.length > 3 && (
-                  <Badge variant="outline" className={eraStyles.badge}>
-                    +{item.skills.length - 3}
+                {displaySkills.length > 3 && (
+                  <Badge
+                    variant="outline"
+                    className={isHomePage ? "bg-gray-100 text-gray-800 hover:bg-gray-200 font-sans" : eraStyles.badge}
+                  >
+                    +{displaySkills.length - 3}
                   </Badge>
                 )}
               </>
             ) : (
-              <Badge variant="outline" className={eraStyles.badge}>
+              <Badge
+                variant="outline"
+                className={isHomePage ? "bg-gray-100 text-gray-800 hover:bg-gray-200 font-sans" : eraStyles.badge}
+              >
                 {item.type}
               </Badge>
             )}

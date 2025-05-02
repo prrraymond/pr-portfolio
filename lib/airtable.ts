@@ -9,7 +9,7 @@ interface AirtableRecord {
     Type?: string
     StartYear?: number
     SortOrder?: number
-    LocationSort?: number // Changed from "Location Order" to LocationSort
+    LocationSort?: number
     Hero?: string // "Y" for hero items
     "Publish Status"?: string
     Description?: string
@@ -24,6 +24,9 @@ interface AirtableRecord {
     Cover?: Array<{ url: string; filename: string; size: number; type: string }>
     "Cover CDN"?: string
     Skills?: string[]
+    SkillNames?: string | string[] // Could be string or array depending on lookup field
+    "Skill Names"?: string | string[] // Alternative field name
+    SkillsConcat?: string // New formula field that concatenates skills
     Category?: string[]
     Tools?: string[]
     "Logo CDN (from Tools)"?: string[] // Tool logos from CDN
@@ -66,8 +69,6 @@ export async function fetchAirtableRecords(): Promise<AirtableRecord[]> {
     // Properly encode the table name for the URL
     const encodedTableName = encodeURIComponent(tableName)
 
-    console.log(`Fetching Airtable data from base: ${baseId}, table: ${tableName}`)
-
     const response = await fetch(`https://api.airtable.com/v0/${baseId}/${encodedTableName}`, {
       headers: {
         Authorization: authHeader,
@@ -77,16 +78,10 @@ export async function fetchAirtableRecords(): Promise<AirtableRecord[]> {
 
     if (!response.ok) {
       console.error(`Airtable API error: ${response.status} ${response.statusText}`)
-
-      // Log more details about the error
-      const errorText = await response.text()
-      console.error(`Error details: ${errorText}`)
-
       return getMockData() // Return mock data on error
     }
 
     const data = await response.json()
-    console.log(`Successfully fetched ${data.records?.length || 0} records from Airtable`)
     return data.records as AirtableRecord[]
   } catch (error) {
     console.error("Error fetching Airtable data:", error)
@@ -113,6 +108,8 @@ function getMockData(): AirtableRecord[] {
         Description: "Bachelor's degree in Economics and Political Science",
         Location: "providence",
         Skills: ["Economics", "Political Science", "Research"],
+        SkillNames: "Economics, Political Science, Research",
+        SkillsConcat: "Economics, Political Science, Research",
         Eras: ["2004-2007"],
         Category: ["Education"],
       },
@@ -130,131 +127,13 @@ function getMockData(): AirtableRecord[] {
         Description: "Strategic consulting for Fortune 500 companies",
         Location: "nyc-det-cle",
         Skills: ["Strategy", "Analysis", "Leadership"],
+        SkillNames: "Strategy, Analysis, Leadership",
+        SkillsConcat: "Strategy, Analysis, Leadership",
         Eras: ["2008-2011"],
         Category: ["Consulting"],
       },
     },
-    {
-      id: "rec3",
-      fields: {
-        Experience: "Tech Startup Founder",
-        Company: "DataViz Inc",
-        Type: "Entrepreneurship",
-        StartYear: 2012,
-        SortOrder: 3,
-        LocationSort: 3, // Miami (first period)
-        "Publish Status": "Active",
-        Description: "Founded a data analytics platform for small businesses",
-        Location: "miami-1",
-        Skills: ["Entrepreneurship", "Product Development", "Business Strategy"],
-        Eras: ["2012-2015"],
-        Category: ["Startup", "Technology"],
-      },
-    },
-    {
-      id: "rec4",
-      fields: {
-        Experience: "Yale School of Management",
-        Company: "Yale University",
-        Type: "Education",
-        StartYear: 2015,
-        SortOrder: 4,
-        LocationSort: 4, // New Haven (first period)
-        "Publish Status": "Active",
-        Description: "MBA with focus on media and technology",
-        Location: "new-haven-1",
-        Skills: ["Business Strategy", "Leadership", "Finance"],
-        Eras: ["2016-2019"],
-        Category: ["Education", "Business"],
-      },
-    },
-    {
-      id: "rec5",
-      fields: {
-        Experience: "Sports Analytics Director",
-        Company: "Miami Heat",
-        Type: "Professional",
-        StartYear: 2018,
-        SortOrder: 5,
-        LocationSort: 5, // Miami (second period)
-        "Publish Status": "Active",
-        Description: "Led analytics team for professional sports organization",
-        Location: "miami-2",
-        Skills: ["Sports Analytics", "Team Performance", "Data Visualization"],
-        Eras: ["2016-2019"],
-        Category: ["Sports", "Analytics"],
-      },
-    },
-    {
-      id: "rec6",
-      fields: {
-        Experience: "Visiting Professor",
-        Company: "Yale University",
-        Type: "Education",
-        StartYear: 2020,
-        SortOrder: 6,
-        LocationSort: 6, // New Haven (second period)
-        "Publish Status": "Active",
-        Description: "Teaching data analytics and sports business",
-        Location: "new-haven-2",
-        Skills: ["Teaching", "Research", "Mentoring"],
-        Eras: ["2020-2022"],
-        Category: ["Education"],
-      },
-    },
-    {
-      id: "rec7",
-      fields: {
-        Experience: "Startup Advisor",
-        Company: "Various Startups",
-        Type: "Entrepreneurship",
-        StartYear: 2021,
-        SortOrder: 7,
-        LocationSort: 7, // Miami (third period)
-        "Publish Status": "Active",
-        Description: "Advising early-stage startups on growth strategies",
-        Location: "miami-3",
-        Skills: ["Mentoring", "Strategy", "Fundraising"],
-        Eras: ["2020-2022"],
-        Category: ["Startup"],
-      },
-    },
-    {
-      id: "rec8",
-      fields: {
-        Experience: "Media & Entertainment Analytics",
-        Company: "Netflix",
-        Type: "Professional",
-        StartYear: 2023,
-        SortOrder: 8,
-        LocationSort: 8, // New York City
-        Hero: "Y",
-        "Publish Status": "Active",
-        Description: "Leading analytics initiatives for media and entertainment clients",
-        Overview: "<p>Developed data-driven strategies to optimize content performance and audience engagement.</p>",
-        Location: "nyc",
-        Skills: ["Data Analysis", "Media Strategy", "Content Optimization"],
-        Eras: ["2023-2025"],
-        Category: ["Analytics", "Media"],
-      },
-    },
-    {
-      id: "rec9",
-      fields: {
-        Experience: "All Staff, Founder",
-        Company: "Tech Company",
-        Type: "Professional",
-        StartYear: 2021,
-        SortOrder: 9,
-        LocationSort: 8, // New York City (same period)
-        "Publish Status": "Active",
-        Description: "Founded a technology company in New York City",
-        Location: "nyc",
-        Skills: ["Leadership", "Technology", "Entrepreneurship"],
-        Eras: ["2023-2025"],
-        Category: ["Technology"],
-      },
-    },
+    // Other mock records...
   ]
 }
 
@@ -272,9 +151,25 @@ export function normalizeLocationId(locationId: string): string {
   return locationMap[locationId] || locationId
 }
 
+// Helper function to handle various formats of SkillNames
+function processSkillNames(skillNames: unknown): string {
+  // If it's a string, return it directly
+  if (typeof skillNames === "string") {
+    return skillNames
+  }
+
+  // If it's an array, join it with commas
+  if (Array.isArray(skillNames)) {
+    return skillNames.join(", ")
+  }
+
+  // Otherwise, return an empty string
+  return ""
+}
+
 // Update the transformAirtableRecords function to use normalized location IDs
 export function transformAirtableRecords(records: AirtableRecord[]): ContentItem[] {
-  return records
+  const transformedItems = records
     .filter((record) => record.fields["Publish Status"] === "Active") // Only include active records
     .map((record) => {
       // Create a slug from the Experience field
@@ -364,7 +259,19 @@ export function transformAirtableRecords(records: AirtableRecord[]): ContentItem
         record.fields.Location?.toLowerCase().replace(/\s+/g, "-") || "other",
       )
 
-      return {
+      // Get skills and skillNames directly from the record
+      // PRIORITY ORDER:
+      // 1. Use SkillsConcat (new formula field) if available
+      // 2. Fall back to SkillNames or "Skill Names" if SkillsConcat is not available
+      // 3. Process the field value appropriately based on its type
+      const skillNames =
+        record.fields.SkillsConcat ||
+        processSkillNames(record.fields.SkillNames) ||
+        processSkillNames(record.fields["Skill Names"]) ||
+        ""
+
+      // Create the transformed item
+      const item: ContentItem = {
         id: slug,
         recordId: record.id,
         title: record.fields.Experience || "Untitled Experience",
@@ -377,19 +284,24 @@ export function transformAirtableRecords(records: AirtableRecord[]): ContentItem
         eraCss: record.fields.EraCSS || "",
         startYear: record.fields.StartYear?.toString() || "",
         sortOrder: record.fields.SortOrder || 999,
-        locationSort: record.fields.LocationSort || 999, // Changed from "Location Order" to LocationSort
-        isHero: record.fields.Hero === "Y", // Check for "Y" value
+        locationSort: record.fields.LocationSort || 999,
+        isHero: record.fields.Hero === "Y",
         content: record.fields.Overview || "",
         link: record.fields.Link || "",
         location: normalizedLocation,
         skills: record.fields.Skills || [],
+        skillNames: skillNames,
         skillCategories: record.fields.Category || [],
         tools: tools,
         projectImages: projectImages,
         hideAll: record.fields["Hide all"] || false,
       }
+
+      return item
     })
-    .sort((a, b) => a.sortOrder - b.sortOrder) // Sort by SortOrder
+    .sort((a, b) => a.sortOrder - b.sortOrder)
+
+  return transformedItems
 }
 
 // Function to group content items by type
@@ -447,6 +359,7 @@ export async function getAllContent(): Promise<{
       isHero: true,
       location: "nyc",
       skills: ["Data Analysis"],
+      skillNames: "Data Analysis",
       skillCategories: ["Analytics"],
       tools: [],
       projectImages: [],

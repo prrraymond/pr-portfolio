@@ -20,6 +20,11 @@ const config: Config = {
     extend: {
       fontFamily: {
         sans: ["var(--font-sans)", "system-ui", "sans-serif"],
+        impact: ["Impact", "Haettenschweiler", "Arial Narrow Bold", "sans-serif"],
+        georgia: ["Georgia", "Times New Roman", "Times", "serif"],
+        times: ["Times New Roman", "Times", "serif"],
+        courier: ["Courier New", "Courier", "monospace"],
+        helvetica: ["Helvetica", "Arial", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",

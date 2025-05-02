@@ -68,7 +68,7 @@ export default function ContentRow({ title, items, era }: ContentRowProps) {
           <div className="flex gap-4">
             {items.map((item) => (
               <div key={item.id} className="snap-start">
-                <ContentCard item={item} era={era} />
+                <ContentCard item={item} isHomePage={true} />
               </div>
             ))}
           </div>

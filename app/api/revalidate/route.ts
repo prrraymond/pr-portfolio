@@ -24,3 +24,16 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ message: "Error revalidating", error: err }, { status: 500 })
   }
 }
+
+// Add a GET route for easier testing
+export async function GET(request: NextRequest) {
+  try {
+    // Revalidate the home page and experience pages
+    revalidatePath("/")
+    revalidatePath("/experience/[slug]")
+
+    return NextResponse.json({ revalidated: true, now: Date.now() })
+  } catch (err) {
+    return NextResponse.json({ message: "Error revalidating", error: err }, { status: 500 })
+  }
+}

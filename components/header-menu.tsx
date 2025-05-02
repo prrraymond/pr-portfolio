@@ -31,19 +31,17 @@ export default function HeaderMenu({ projects = [] }: HeaderMenuProps) {
             <DropdownMenuTrigger className="flex items-center text-gray-600 hover:text-gray-800 focus:outline-none font-medium">
               Experiences <ChevronDown className={`ml-1 h-4 w-4 transition-transform ${isOpen ? "rotate-180" : ""}`} />
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-64 font-sans">
+            <DropdownMenuContent align="end" className="w-56 font-sans p-1 max-h-[70vh] overflow-y-auto">
               {sortedProjects.length > 0 ? (
                 sortedProjects.map((project) => (
-                  <DropdownMenuItem key={project.id} className="py-2">
+                  <DropdownMenuItem key={project.id} className="py-1.5 pl-2 hover:bg-gray-50">
                     <Link
                       href={`/experience/${project.id}`}
-                      className="flex flex-col w-full"
+                      className="flex justify-between items-center w-full"
                       onClick={() => setIsOpen(false)}
                     >
-                      <span className="font-medium">{project.title}</span>
-                      <span className="text-xs text-gray-500 font-normal">
-                        {project.company} • {project.startYear}
-                      </span>
+                      <span className="truncate mr-2 font-medium">{project.title}</span>
+                      <span className="text-xs text-gray-500 whitespace-nowrap">{project.startYear}</span>
                     </Link>
                   </DropdownMenuItem>
                 ))
