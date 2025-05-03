@@ -167,40 +167,13 @@ function processSkillNames(skillNames: unknown): string {
   return ""
 }
 
-// Function to create a unique slug for a record
-function createUniqueSlug(record: AirtableRecord): string {
-  // Start with the Experience field
-  let baseSlug = record.fields.Experience
-    ? record.fields.Experience.toLowerCase()
-        .replace(/[^\w\s]/g, "")
-        .replace(/\s+/g, "-")
-    : "item"
-
-  // For records with "Founder" as Experience, make them unique by adding:
-  // 1. Company name if available
-  // 2. Record ID as a fallback
-  if (record.fields.Experience === "Founder") {
-    // If we have a company name, add it to the slug
-    if (record.fields.Company) {
-      baseSlug = `${baseSlug}-at-${record.fields.Company.toLowerCase()
-        .replace(/[^\w\s]/g, "")
-        .replace(/\s+/g, "-")}`
-    } else {
-      // Otherwise, use the record ID to ensure uniqueness
-      baseSlug = `${baseSlug}-${record.id.toLowerCase()}`
-    }
-  }
-
-  return baseSlug
-}
-
 // Update the transformAirtableRecords function to use normalized location IDs
 export function transformAirtableRecords(records: AirtableRecord[]): ContentItem[] {
   // First, log all Founder records to help with debugging
-  const founderRecords = records.filter((r) => r.fields.Experience === "Founder")
+  const founderRecords = records.filter((r) => r.fields.Type === "Founders")
   console.log(`Found ${founderRecords.length} Founder records:`)
   founderRecords.forEach((r) => {
-    console.log(`- ID: ${r.id}, Company: ${r.fields.Company}, Cover: ${r.fields["Cover CDN"] || "(attachment)"}`)
+    console.log(`- ID: ${r.id}, Experience: ${r.fields.Experience}, Company: ${r.fields.Company}`)
   })
 
   // Track used slugs to ensure uniqueness
@@ -209,8 +182,12 @@ export function transformAirtableRecords(records: AirtableRecord[]): ContentItem
   const transformedItems = records
     .filter((record) => record.fields["Publish Status"] === "Active") // Only include active records
     .map((record) => {
-      // Create a unique slug for this record
-      let slug = createUniqueSlug(record)
+      // Create a slug from the Experience field
+      let slug = record.fields.Experience
+        ? record.fields.Experience.toLowerCase()
+            .replace(/[^\w\s]/g, "")
+            .replace(/\s+/g, "-")
+        : record.id
 
       // If this slug is already used, make it unique by appending the record ID
       if (usedSlugs.has(slug)) {
@@ -223,7 +200,7 @@ export function transformAirtableRecords(records: AirtableRecord[]): ContentItem
       // Get the era from the Eras field (assuming it's an array with one item)
       const era = record.fields.Eras && record.fields.Eras.length > 0 ? record.fields.Eras[0] : "2023-2025" // Default to latest era
 
-      // Get image URLs, with special handling for Founder records
+      // Get image URLs
       let coverImage: string | undefined
 
       // Get the cover image
@@ -319,6 +296,10 @@ export function transformAirtableRecords(records: AirtableRecord[]): ContentItem
         processSkillNames(record.fields["Skill Names"]) ||
         ""
 
+      // IMPORTANT CHANGE: Create a special field to identify Founder records
+      // This will be used to render them differently regardless of what the Type field says
+      const isFounder = record.fields.Type === "Founders"
+
       // Create the transformed item
       const item: ContentItem = {
         id: slug,
@@ -344,15 +325,18 @@ export function transformAirtableRecords(records: AirtableRecord[]): ContentItem
         tools: tools,
         projectImages: projectImages,
         hideAll: record.fields["Hide all"] || false,
+        // Add the new field
+        isFounder: isFounder,
       }
 
       // Log for Founder records
-      if (record.fields.Experience === "Founder") {
+      if (isFounder) {
         console.log(`Transformed Founder record:`)
         console.log(`- Original ID: ${record.id}`)
         console.log(`- Slug: ${slug}`)
-        console.log(`- Company: ${record.fields.Company}`)
-        console.log(`- Image: ${coverImage}`)
+        console.log(`- Title: ${item.title}`)
+        console.log(`- Company: ${item.company}`)
+        console.log(`- isFounder flag: ${item.isFounder}`)
       }
 
       return item
@@ -422,6 +406,7 @@ export async function getAllContent(): Promise<{
       tools: [],
       projectImages: [],
       hideAll: false,
+      isFounder: false,
     }
 
     return {

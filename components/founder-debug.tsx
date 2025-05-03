@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import FounderCardV2 from "@/components/founder-card-v2"
+import ContentCardWrapper from "@/components/content-card-wrapper"
 import type { ContentItem } from "@/lib/types"
 
 export default function FounderDebug() {
@@ -17,7 +17,12 @@ export default function FounderDebug() {
       const response = await fetch("/api/debug/founder-cards")
       if (response.ok) {
         const data = await response.json()
-        setFounders(data.transformedFounders)
+        // Make sure all items have isFounder set to true
+        const founderItems = data.transformedFounders.map((item: ContentItem) => ({
+          ...item,
+          isFounder: true,
+        }))
+        setFounders(founderItems)
       }
     } catch (error) {
       console.error("Error fetching founders:", error)
@@ -64,7 +69,7 @@ export default function FounderDebug() {
             <div className="flex flex-wrap gap-4 justify-center">
               {founders.map((founder) => (
                 <div key={founder.id} className="w-72">
-                  <FounderCardV2 item={founder} />
+                  <ContentCardWrapper item={founder} />
                 </div>
               ))}
             </div>

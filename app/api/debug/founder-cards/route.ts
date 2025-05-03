@@ -7,13 +7,13 @@ export async function GET() {
     const records = await fetchAirtableRecords()
 
     // Filter for Founder records
-    const founderRecords = records.filter((r) => r.fields.Experience === "Founder")
+    const founderRecords = records.filter((r) => r.fields.Type === "Founders")
 
     // Transform all records
     const transformedItems = transformAirtableRecords(records)
 
     // Filter for transformed Founder items
-    const founderItems = transformedItems.filter((item) => item.title === "Founder")
+    const founderItems = transformedItems.filter((item) => item.isFounder)
 
     // Create a detailed report
     const report = {
@@ -30,12 +30,9 @@ export async function GET() {
       })),
 
       transformedFounders: founderItems.map((item) => ({
-        id: item.id,
-        recordId: item.recordId,
-        title: item.title,
-        company: item.company,
-        sortOrder: item.sortOrder,
-        image: item.image,
+        ...item,
+        // Ensure isFounder is set to true
+        isFounder: true,
       })),
 
       // Check for duplicate slugs

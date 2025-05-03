@@ -42,6 +42,7 @@ export interface ContentItem {
   tools: ToolItem[]
   projectImages: ProjectImage[]
   hideAll: boolean
+  isFounder: boolean // New field to explicitly identify Founder records
 }
 
 export interface Category {

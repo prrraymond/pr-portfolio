@@ -1,8 +1,7 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
-import ContentCard from "@/components/content-card"
-import FounderCardV2 from "@/components/founder-card-v2"
+import ContentCardWrapper from "@/components/content-card-wrapper"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import type { ContentItem } from "@/lib/types"
@@ -31,8 +30,14 @@ export default function ContentRow({ title, items, era }: ContentRowProps) {
     // Log that the component has mounted with the current items
     console.log(`ContentRow mounted: ${title}`)
     console.log(`Items count: ${items.length}`)
-    if (title === "Founders") {
-      console.log("Founder items:", items)
+
+    // Check for founder items
+    const founderItems = items.filter((item) => item.isFounder)
+    if (founderItems.length > 0) {
+      console.log(`Found ${founderItems.length} founder items in ${title} row:`)
+      founderItems.forEach((item) => {
+        console.log(`- ${item.title} at ${item.company} (ID: ${item.id})`)
+      })
     }
   }, [title, items])
 
@@ -63,20 +68,23 @@ export default function ContentRow({ title, items, era }: ContentRowProps) {
   // Check if this is the Founders row
   const isFoundersRow = title === "Founders"
 
+  // Count how many founder items we have
+  const founderCount = items.filter((item) => item.isFounder).length
+
   // Log when rendering
   console.log(`Rendering ContentRow: ${title} (key: ${renderKey})`)
-  if (isFoundersRow) {
-    console.log(`Using FounderCardV2 for ${items.length} items`)
+  if (isFoundersRow || founderCount > 0) {
+    console.log(`Row contains ${founderCount} founder items`)
   }
 
   return (
     <section className="px-4 md:px-8 relative" key={renderKey}>
       <h2 className={`text-2xl md:text-3xl font-bold mb-6 ${eraStyles.header}`}>{title}</h2>
 
-      {/* Add a special indicator for Founders row */}
-      {isFoundersRow && (
+      {/* Add a special indicator for rows with founder items */}
+      {(isFoundersRow || founderCount > 0) && (
         <div className="mb-4 text-sm text-blue-600 font-medium">
-          Using new Founder card style (v2) - {items.length} founders
+          Using new Founder card style (v2) - {founderCount} founders
         </div>
       )}
 
@@ -99,19 +107,14 @@ export default function ContentRow({ title, items, era }: ContentRowProps) {
         >
           <div className="flex gap-4">
             {items.map((item) => {
-              // Log each item in Founders row
-              if (isFoundersRow) {
-                console.log(`Rendering Founder item: ${item.id} (${item.company})`)
+              // Log each founder item
+              if (item.isFounder) {
+                console.log(`Rendering founder item in row: ${item.title} at ${item.company} (ID: ${item.id})`)
               }
 
               return (
                 <div key={`${item.id}-${renderKey}`} className="snap-start">
-                  {/* Use FounderCardV2 for Founder items, ContentCard for others */}
-                  {isFoundersRow || item.type === "Founders" ? (
-                    <FounderCardV2 item={item} isHomePage={true} />
-                  ) : (
-                    <ContentCard item={item} isHomePage={true} />
-                  )}
+                  <ContentCardWrapper item={item} isHomePage={true} />
                 </div>
               )
             })}
