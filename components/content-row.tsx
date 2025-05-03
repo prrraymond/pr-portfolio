@@ -1,7 +1,8 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import ContentCard from "@/components/content-card"
+import FounderCardV2 from "@/components/founder-card-v2"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import type { ContentItem } from "@/lib/types"
@@ -17,8 +18,23 @@ export default function ContentRow({ title, items, era }: ContentRowProps) {
   const rowRef = useRef<HTMLDivElement>(null)
   const [canScrollLeft, setCanScrollLeft] = useState(false)
   const [canScrollRight, setCanScrollRight] = useState(true)
+  // Add a key to force re-render
+  const [renderKey, setRenderKey] = useState(Date.now())
 
   const eraStyles = getEraStyles(era)
+
+  // Force a re-render on mount
+  useEffect(() => {
+    // Set a new key to force re-render after component mounts
+    setRenderKey(Date.now())
+
+    // Log that the component has mounted with the current items
+    console.log(`ContentRow mounted: ${title}`)
+    console.log(`Items count: ${items.length}`)
+    if (title === "Founders") {
+      console.log("Founder items:", items)
+    }
+  }, [title, items])
 
   const checkScrollButtons = () => {
     if (rowRef.current) {
@@ -44,9 +60,25 @@ export default function ContentRow({ title, items, era }: ContentRowProps) {
     }
   }
 
+  // Check if this is the Founders row
+  const isFoundersRow = title === "Founders"
+
+  // Log when rendering
+  console.log(`Rendering ContentRow: ${title} (key: ${renderKey})`)
+  if (isFoundersRow) {
+    console.log(`Using FounderCardV2 for ${items.length} items`)
+  }
+
   return (
-    <section className="px-4 md:px-8 relative">
+    <section className="px-4 md:px-8 relative" key={renderKey}>
       <h2 className={`text-2xl md:text-3xl font-bold mb-6 ${eraStyles.header}`}>{title}</h2>
+
+      {/* Add a special indicator for Founders row */}
+      {isFoundersRow && (
+        <div className="mb-4 text-sm text-blue-600 font-medium">
+          Using new Founder card style (v2) - {items.length} founders
+        </div>
+      )}
 
       <div className="relative group">
         {canScrollLeft && (
@@ -66,11 +98,23 @@ export default function ContentRow({ title, items, era }: ContentRowProps) {
           onScroll={checkScrollButtons}
         >
           <div className="flex gap-4">
-            {items.map((item) => (
-              <div key={item.id} className="snap-start">
-                <ContentCard item={item} isHomePage={true} />
-              </div>
-            ))}
+            {items.map((item) => {
+              // Log each item in Founders row
+              if (isFoundersRow) {
+                console.log(`Rendering Founder item: ${item.id} (${item.company})`)
+              }
+
+              return (
+                <div key={`${item.id}-${renderKey}`} className="snap-start">
+                  {/* Use FounderCardV2 for Founder items, ContentCard for others */}
+                  {isFoundersRow || item.type === "Founders" ? (
+                    <FounderCardV2 item={item} isHomePage={true} />
+                  ) : (
+                    <ContentCard item={item} isHomePage={true} />
+                  )}
+                </div>
+              )
+            })}
           </div>
         </div>
 

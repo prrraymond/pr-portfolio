@@ -7,18 +7,21 @@ export async function GET() {
     const records = await fetchAirtableRecords()
 
     // Extract just the relevant fields for debugging
-    const debugData = records.map((record) => ({
-      id: record.id,
-      title: record.fields.Experience,
-      skills: record.fields.Skills,
-      skillNames: record.fields.SkillNames,
-      // Include all fields for inspection
-      allFields: Object.keys(record.fields),
-    }))
+    const debugData = records
+      .filter((record) => record.fields.Type === "Founders")
+      .map((record) => ({
+        id: record.id,
+        title: record.fields.Experience,
+        type: record.fields.Type,
+        cover: record.fields.Cover,
+        coverCDN: record.fields["Cover CDN"],
+        // Include all fields for inspection
+        allFields: Object.keys(record.fields),
+      }))
 
     // Return the debug data
     return NextResponse.json({
-      count: records.length,
+      count: debugData.length,
       items: debugData,
     })
   } catch (error) {

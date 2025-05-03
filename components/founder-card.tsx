@@ -6,45 +6,45 @@ import type { ContentItem } from "@/lib/types"
 import { getEraStyles } from "@/lib/era-styles"
 import Link from "next/link"
 import { getSkillsForDisplay } from "@/lib/skills-helper"
-import { useState, useEffect } from "react"
 
-interface ContentCardProps {
+interface FounderCardProps {
   item: ContentItem
-  isHomePage?: boolean // Add this prop to determine if it's the home page
+  isHomePage?: boolean
 }
 
-export default function ContentCard({ item, isHomePage = false }: ContentCardProps) {
-  // Use the item's own era for styling
+// Hardcoded images for founders - these are completely different images
+const FOUNDER_IMAGES = [
+  "/placeholder.svg?key=d5ldq",
+  "/placeholder.svg?key=vfr7p",
+  "/placeholder.svg?key=b7hgd",
+  "/placeholder.svg?key=xx2qq",
+  "/placeholder.svg?key=e4n0w",
+  "/placeholder.svg?height=480&width=640&query=business-person-6",
+  "/placeholder.svg?height=480&width=640&query=business-person-7",
+  "/placeholder.svg?height=480&width=640&query=business-person-8",
+  "/placeholder.svg?height=480&width=640&query=business-person-9",
+  "/placeholder.svg?height=480&width=640&query=business-person-10",
+]
+
+export default function FounderCard({ item, isHomePage = false }: FounderCardProps) {
   const eraStyles = getEraStyles(item.era)
-
-  // State to track image loading errors
-  const [imageError, setImageError] = useState(false)
-
-  // State to hold the image URL with cache-busting
-  const [imageUrl, setImageUrl] = useState<string>("")
-
-  // Get skills for display using our helper function
   const displaySkills = getSkillsForDisplay(item)
 
-  // Set up the image URL with cache busting
-  useEffect(() => {
-    // For Founder cards or when the title is "Founder", add a unique identifier
-    if (item.title === "Founder") {
-      // Use the record ID to make the URL unique
-      const uniqueParam = `&id=${item.recordId || item.id}`
-      setImageUrl(
-        item.image
-          ? `${item.image}${item.image.includes("?") ? uniqueParam : `?${uniqueParam.substring(1)}`}`
-          : `/placeholder.svg?height=480&width=640&query=${encodeURIComponent(item.title)}-${item.id}`,
-      )
+  // Use a simple index based on the sortOrder to select an image
+  // This ensures each founder gets a different image
+  const imageIndex = (item.sortOrder || 0) % FOUNDER_IMAGES.length
+  const imageUrl = FOUNDER_IMAGES[imageIndex]
 
-      // Log for debugging
-      console.log(`Founder card image URL: ${imageUrl} (ID: ${item.id}, Record ID: ${item.recordId})`)
-    } else {
-      // For non-Founder cards, use the image as is
-      setImageUrl(item.image || `/placeholder.svg?height=480&width=640&query=${encodeURIComponent(item.title)}`)
-    }
-  }, [item.image, item.title, item.id, item.recordId])
+  // Add a timestamp to prevent caching
+  const finalImageUrl = `${imageUrl}&t=${Date.now()}`
+
+  // Log for debugging
+  console.log(`FounderCard rendered for ${item.title} at ${item.company}`)
+  console.log(`- ID: ${item.id}`)
+  console.log(`- Record ID: ${item.recordId}`)
+  console.log(`- Sort Order: ${item.sortOrder}`)
+  console.log(`- Image Index: ${imageIndex}`)
+  console.log(`- Using image: ${imageUrl}`)
 
   return (
     <Link href={`/experience/${item.id}`}>
@@ -59,37 +59,24 @@ export default function ContentCard({ item, isHomePage = false }: ContentCardPro
         }}
       >
         <div className="relative h-48 w-full overflow-hidden">
-          {imageUrl && (
-            <Image
-              src={
-                imageError
-                  ? `/placeholder.svg?height=480&width=640&query=${encodeURIComponent(item.title)}&error=true`
-                  : imageUrl
-              }
-              alt={item.title}
-              fill
-              className={`object-cover transition-transform duration-700 hover:scale-110 ${eraStyles.filter}`}
-              onError={(e) => {
-                console.error(`Image error for ${item.title}:`, e)
-                setImageError(true)
-              }}
-              data-type={item.type}
-              data-id={item.id}
-              data-record-id={item.recordId}
-              data-title={item.title}
-              data-company={item.company}
-            />
-          )}
+          <Image
+            src={finalImageUrl || "/placeholder.svg"}
+            alt={`${item.title} at ${item.company}`}
+            fill
+            className={`object-cover transition-transform duration-700 hover:scale-110 ${eraStyles.filter}`}
+            priority={true} // Force priority loading
+            data-founder-id={item.id}
+            data-record-id={item.recordId}
+            data-sort-order={item.sortOrder}
+            data-image-index={imageIndex}
+          />
 
-          {/* Add a visual indicator for Founder cards to help with debugging */}
-          {item.title === "Founder" && (
-            <div className="absolute top-2 right-2 bg-blue-600 text-white px-2 py-1 text-xs rounded-full">
-              {item.company || item.id}
-            </div>
-          )}
+          {/* Add a visual indicator with the sort order to help identify each founder */}
+          <div className="absolute top-2 right-2 bg-blue-600 text-white px-2 py-1 text-xs rounded-full">
+            #{item.sortOrder}
+          </div>
         </div>
         <CardContent className="p-4">
-          {/* Company logo and title row */}
           <div className="flex items-center mb-2">
             {item.logo && (
               <div className="h-6 w-6 relative mr-2 flex-shrink-0">
@@ -97,8 +84,7 @@ export default function ContentCard({ item, isHomePage = false }: ContentCardPro
               </div>
             )}
             <h3 className={`text-xl ${isHomePage ? "font-bold font-sans" : eraStyles.header}`}>
-              {item.title}
-              {item.title === "Founder" && item.company ? ` at ${item.company}` : ""}
+              {item.title} {item.company && `at ${item.company}`}
             </h3>
           </div>
 

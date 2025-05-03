@@ -167,25 +167,74 @@ function processSkillNames(skillNames: unknown): string {
   return ""
 }
 
+// Function to create a unique slug for a record
+function createUniqueSlug(record: AirtableRecord): string {
+  // Start with the Experience field
+  let baseSlug = record.fields.Experience
+    ? record.fields.Experience.toLowerCase()
+        .replace(/[^\w\s]/g, "")
+        .replace(/\s+/g, "-")
+    : "item"
+
+  // For records with "Founder" as Experience, make them unique by adding:
+  // 1. Company name if available
+  // 2. Record ID as a fallback
+  if (record.fields.Experience === "Founder") {
+    // If we have a company name, add it to the slug
+    if (record.fields.Company) {
+      baseSlug = `${baseSlug}-at-${record.fields.Company.toLowerCase()
+        .replace(/[^\w\s]/g, "")
+        .replace(/\s+/g, "-")}`
+    } else {
+      // Otherwise, use the record ID to ensure uniqueness
+      baseSlug = `${baseSlug}-${record.id.toLowerCase()}`
+    }
+  }
+
+  return baseSlug
+}
+
 // Update the transformAirtableRecords function to use normalized location IDs
 export function transformAirtableRecords(records: AirtableRecord[]): ContentItem[] {
+  // First, log all Founder records to help with debugging
+  const founderRecords = records.filter((r) => r.fields.Experience === "Founder")
+  console.log(`Found ${founderRecords.length} Founder records:`)
+  founderRecords.forEach((r) => {
+    console.log(`- ID: ${r.id}, Company: ${r.fields.Company}, Cover: ${r.fields["Cover CDN"] || "(attachment)"}`)
+  })
+
+  // Track used slugs to ensure uniqueness
+  const usedSlugs = new Set<string>()
+
   const transformedItems = records
     .filter((record) => record.fields["Publish Status"] === "Active") // Only include active records
     .map((record) => {
-      // Create a slug from the Experience field
-      const slug = record.fields.Experience
-        ? record.fields.Experience.toLowerCase()
-            .replace(/[^\w\s]/g, "")
-            .replace(/\s+/g, "-")
-        : record.id
+      // Create a unique slug for this record
+      let slug = createUniqueSlug(record)
+
+      // If this slug is already used, make it unique by appending the record ID
+      if (usedSlugs.has(slug)) {
+        slug = `${slug}-${record.id.toLowerCase()}`
+      }
+
+      // Add this slug to the used slugs set
+      usedSlugs.add(slug)
 
       // Get the era from the Eras field (assuming it's an array with one item)
       const era = record.fields.Eras && record.fields.Eras.length > 0 ? record.fields.Eras[0] : "2023-2025" // Default to latest era
 
-      // Get image URLs, preferring CDN links if available
-      const coverImage =
+      // Get image URLs, with special handling for Founder records
+      let coverImage: string | undefined
+
+      // Get the cover image
+      coverImage =
         record.fields["Cover CDN"] ||
         (record.fields.Cover && record.fields.Cover.length > 0 ? record.fields.Cover[0].url : undefined)
+
+      // If no image is found, use a placeholder
+      if (!coverImage) {
+        coverImage = `/placeholder.svg?height=480&width=640&query=${encodeURIComponent(record.fields.Experience || "Content")}`
+      }
 
       const logoImage =
         record.fields["Logo CDN"] ||
@@ -295,6 +344,15 @@ export function transformAirtableRecords(records: AirtableRecord[]): ContentItem
         tools: tools,
         projectImages: projectImages,
         hideAll: record.fields["Hide all"] || false,
+      }
+
+      // Log for Founder records
+      if (record.fields.Experience === "Founder") {
+        console.log(`Transformed Founder record:`)
+        console.log(`- Original ID: ${record.id}`)
+        console.log(`- Slug: ${slug}`)
+        console.log(`- Company: ${record.fields.Company}`)
+        console.log(`- Image: ${coverImage}`)
       }
 
       return item
