@@ -1,4 +1,6 @@
 import type { ContentItem, Category, ProjectImage, ToolItem } from "@/lib/types"
+import { enhanceCloudinaryUrl } from "@/lib/cloudinary-helper"
+import { getToolName } from "@/lib/tool-mappings"
 
 // Define the Airtable record structure based on your schema
 interface AirtableRecord {
@@ -167,12 +169,19 @@ function processSkillNames(skillNames: unknown): string {
   return ""
 }
 
-// Update the transformAirtableRecords function to use normalized location IDs
+// Update the transformAirtableRecords function to be more flexible with founder identification
 export function transformAirtableRecords(records: AirtableRecord[]): ContentItem[] {
-  // First, log all Founder records to help with debugging
-  const founderRecords = records.filter((r) => r.fields.Type === "Founders")
-  console.log(`Found ${founderRecords.length} Founder records:`)
-  founderRecords.forEach((r) => {
+  // First, log all potential founder records to help with debugging
+  const potentialFounderRecords = records.filter((r) => {
+    const experience = r.fields.Experience || ""
+    const company = r.fields.Company || ""
+
+    // Check specifically for Experience = "Founder" with a Company
+    return experience === "Founder" && company
+  })
+
+  console.log(`Found ${potentialFounderRecords.length} potential Founder records:`)
+  potentialFounderRecords.forEach((r) => {
     console.log(`- ID: ${r.id}, Experience: ${r.fields.Experience}, Company: ${r.fields.Company}`)
   })
 
@@ -197,13 +206,38 @@ export function transformAirtableRecords(records: AirtableRecord[]): ContentItem
       // Add this slug to the used slugs set
       usedSlugs.add(slug)
 
-      // Get the era from the Eras field (assuming it's an array with one item)
-      const era = record.fields.Eras && record.fields.Eras.length > 0 ? record.fields.Eras[0] : "2023-2025" // Default to latest era
+      // Get the era from the Eras field or determine it from the start year
+      let era = record.fields.Eras && record.fields.Eras.length > 0 ? record.fields.Eras[0] : undefined
+
+      // If era is not set, determine it from the start year
+      if (!era && record.fields.StartYear) {
+        const startYear = record.fields.StartYear
+        if (startYear >= 2004 && startYear <= 2007) {
+          era = "2004-2007"
+        } else if (startYear >= 2008 && startYear <= 2011) {
+          era = "2008-2011"
+        } else if (startYear >= 2012 && startYear <= 2015) {
+          era = "2012-2015"
+        } else if (startYear >= 2016 && startYear <= 2019) {
+          era = "2016-2019"
+        } else if (startYear >= 2020 && startYear <= 2022) {
+          era = "2020-2022"
+        } else if (startYear >= 2023) {
+          era = "2023-2025"
+        }
+      }
+
+      // Default to latest era if still not set
+      if (!era) {
+        era = "2023-2025"
+      }
+
+      console.log(`Record ${record.fields.Experience}: StartYear=${record.fields.StartYear}, Era=${era}`)
 
       // Get image URLs
       let coverImage: string | undefined
 
-      // Get the cover image
+      // Get the cover image - use Cover CDN as primary source
       coverImage =
         record.fields["Cover CDN"] ||
         (record.fields.Cover && record.fields.Cover.length > 0 ? record.fields.Cover[0].url : undefined)
@@ -211,11 +245,16 @@ export function transformAirtableRecords(records: AirtableRecord[]): ContentItem
       // If no image is found, use a placeholder
       if (!coverImage) {
         coverImage = `/placeholder.svg?height=480&width=640&query=${encodeURIComponent(record.fields.Experience || "Content")}`
+      } else {
+        // Enhance Cloudinary URLs for better quality
+        coverImage = enhanceCloudinaryUrl(coverImage)
       }
 
       const logoImage =
-        record.fields["Logo CDN"] ||
-        (record.fields.Logo && record.fields.Logo.length > 0 ? record.fields.Logo[0].url : undefined)
+        enhanceCloudinaryUrl(record.fields["Logo CDN"]) ||
+        (record.fields.Logo && record.fields.Logo.length > 0
+          ? enhanceCloudinaryUrl(record.fields.Logo[0].url)
+          : undefined)
 
       // Process project images
       const projectImages: ProjectImage[] = []
@@ -226,7 +265,7 @@ export function transformAirtableRecords(records: AirtableRecord[]): ContentItem
         (record.fields["Project Image 1"] && record.fields["Project Image 1"].length > 0)
       ) {
         projectImages.push({
-          url: record.fields["PIMG1 CDN"] || record.fields["Project Image 1"]![0].url,
+          url: enhanceCloudinaryUrl(record.fields["PIMG1 CDN"] || record.fields["Project Image 1"]![0].url),
           caption: record.fields["Image 1 Caption"] || "",
         })
       }
@@ -237,7 +276,7 @@ export function transformAirtableRecords(records: AirtableRecord[]): ContentItem
         (record.fields["Project Image 2"] && record.fields["Project Image 2"].length > 0)
       ) {
         projectImages.push({
-          url: record.fields["PIMG2 CDN"] || record.fields["Project Image 2"]![0].url,
+          url: enhanceCloudinaryUrl(record.fields["PIMG2 CDN"] || record.fields["Project Image 2"]![0].url),
           caption: record.fields["Image 2 Caption"] || "",
         })
       }
@@ -248,7 +287,7 @@ export function transformAirtableRecords(records: AirtableRecord[]): ContentItem
         (record.fields["Project Image 3"] && record.fields["Project Image 3"].length > 0)
       ) {
         projectImages.push({
-          url: record.fields["PIMG3 CDN"] || record.fields["Project Image 3"]![0].url,
+          url: enhanceCloudinaryUrl(record.fields["PIMG3 CDN"] || record.fields["Project Image 3"]![0].url),
           caption: record.fields["Image 3 Caption"] || "",
         })
       }
@@ -259,23 +298,52 @@ export function transformAirtableRecords(records: AirtableRecord[]): ContentItem
         (record.fields["Project Image 4"] && record.fields["Project Image 4"].length > 0)
       ) {
         projectImages.push({
-          url: record.fields["PIMG4 CDN"] || record.fields["Project Image 4"]![0].url,
+          url: enhanceCloudinaryUrl(record.fields["PIMG4 CDN"] || record.fields["Project Image 4"]![0].url),
           caption: "",
         })
       }
 
       // Process tools with their logos
       const tools: ToolItem[] = []
-      if (record.fields.Tools && record.fields.Tools.length > 0) {
+      if (record.fields.Tools && Array.isArray(record.fields.Tools) && record.fields.Tools.length > 0) {
+        // Log for debugging
+        console.log(`Processing tools for ${record.fields.Experience} (ID: ${record.id}):`)
+        console.log(`Raw Tools array:`, record.fields.Tools)
+        console.log(`Logo CDN (from Tools):`, record.fields["Logo CDN (from Tools)"])
+
         record.fields.Tools.forEach((tool, index) => {
+          // Get the logo URL directly from "Logo CDN (from Tools)" field
           const logoUrl =
-            record.fields["Logo CDN (from Tools)"] && record.fields["Logo CDN (from Tools)"][index]
+            record.fields["Logo CDN (from Tools)"] &&
+            Array.isArray(record.fields["Logo CDN (from Tools)"]) &&
+            index < record.fields["Logo CDN (from Tools)"].length
               ? record.fields["Logo CDN (from Tools)"][index]
               : undefined
 
+          // Store the original tool ID for debugging and mapping
+          const originalId = typeof tool === "string" ? tool : undefined
+
+          // Process the tool name using our mapping function
+          let toolName = "Unknown Tool"
+
+          if (typeof tool === "string") {
+            // Log the original tool ID for debugging
+            console.log(`Tool ${index + 1} - Original ID: "${tool}"`)
+
+            // Try to map the tool ID to a human-readable name
+            toolName = getToolName(tool)
+
+            // Log the mapped tool name
+            console.log(`Tool ${index + 1} - Mapped name: "${toolName}"`)
+          } else {
+            toolName = `Tool ${index + 1}`
+            console.log(`Tool ${index + 1} - Non-string tool value:`, tool)
+          }
+
           tools.push({
-            name: tool,
-            logo: logoUrl,
+            name: toolName,
+            logo: logoUrl ? enhanceCloudinaryUrl(logoUrl) : undefined,
+            originalId: originalId, // Always store the original ID
           })
         })
       }
@@ -296,9 +364,8 @@ export function transformAirtableRecords(records: AirtableRecord[]): ContentItem
         processSkillNames(record.fields["Skill Names"]) ||
         ""
 
-      // IMPORTANT CHANGE: Create a special field to identify Founder records
-      // This will be used to render them differently regardless of what the Type field says
-      const isFounder = record.fields.Type === "Founders"
+      // SIMPLIFIED FOUNDER DETECTION: Focus on Experience = "Founder" with a Company
+      const isFounderRecord = record.fields.Experience === "Founder" && !!record.fields.Company
 
       // Create the transformed item
       const item: ContentItem = {
@@ -325,12 +392,12 @@ export function transformAirtableRecords(records: AirtableRecord[]): ContentItem
         tools: tools,
         projectImages: projectImages,
         hideAll: record.fields["Hide all"] || false,
-        // Add the new field
-        isFounder: isFounder,
+        // Add the new field with simplified detection
+        isFounder: isFounderRecord,
       }
 
       // Log for Founder records
-      if (isFounder) {
+      if (isFounderRecord) {
         console.log(`Transformed Founder record:`)
         console.log(`- Original ID: ${record.id}`)
         console.log(`- Slug: ${slug}`)
@@ -421,7 +488,38 @@ export async function getAllContent(): Promise<{
 export async function getContentById(id: string): Promise<ContentItem | null> {
   try {
     const { items } = await getAllContent()
-    return items.find((item) => item.id === id) || null
+    const item = items.find((item) => item.id === id)
+
+    if (!item) return null
+
+    // Ensure we're using the best quality image available
+    if (item) {
+      console.log(`Found item with ID ${id}:`, {
+        title: item.title,
+        company: item.company,
+        image: item.image,
+      })
+
+      // If the image is from Cloudinary, modify the URL to request the highest quality
+      if (item.image && item.image.includes("cloudinary.com")) {
+        // Remove any existing quality or transformation parameters
+        let imageUrl = item.image
+
+        // If URL contains '/upload/', insert quality parameters after it
+        if (imageUrl.includes("/upload/")) {
+          imageUrl = imageUrl.replace("/upload/", "/upload/q_auto:best,f_auto,dpr_2.0/")
+        }
+
+        // Add a cache-busting parameter
+        imageUrl = `${imageUrl}${imageUrl.includes("?") ? "&" : "?"}cb=${Date.now()}`
+
+        // Update the item's image URL
+        item.image = imageUrl
+        console.log(`Enhanced image URL: ${item.image}`)
+      }
+    }
+
+    return item
   } catch (error) {
     console.error(`Error getting content by ID ${id}:`, error)
     return null

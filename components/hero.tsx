@@ -17,7 +17,7 @@ export default function Hero({ heroContent, allProjects = [] }: HeroProps) {
   const company = heroContent?.company || "Portfolio"
   const description =
     heroContent?.description ||
-    "Intellectually curious & strategic 'athlete' with a passion for analytics, design, and driving positive impact."
+    "Intellectually curious & strategic athlete with a passion for analytics, design, and driving positive impact."
   const image = heroContent?.image || "/media-analytics-dashboard-enhanced.png"
   const startYear = heroContent?.startYear ? `${heroContent.startYear}` : "2023"
   const slug = heroContent?.id || ""
@@ -28,21 +28,23 @@ export default function Hero({ heroContent, allProjects = [] }: HeroProps) {
       <HeaderMenu projects={allProjects} />
 
       {/* Hero Section */}
-      <section className="relative bg-gray-50 py-12 md:py-16 font-sans">
+      <section className="relative bg-gray-50 py-8 md:py-12 font-sans">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-start">
             {/* Left side - Text content */}
             <div className="w-full md:w-2/5 mb-8 md:mb-0 md:pr-8">
               <p className="text-base text-gray-600 mb-6 font-normal">
-                Intellectually curious & strategic "athlete" with a passion for analytics, design, and driving positive
+                Intellectually curious & strategic athlete with a passion for analytics, design, and driving positive
                 impact. My professional experience spans media & entertainment, management consulting, education,
                 professional sports, and entrepreneurship.
               </p>
 
               <div className="flex space-x-4">
-                <Button className="bg-blue-600 hover:bg-blue-700 font-medium">View Experiences</Button>
-                <Button variant="outline" className="font-medium">
-                  Contact Me
+                <Button className="bg-blue-600 hover:bg-blue-700 font-medium">
+                  <Link href="/#content">View Experiences</Link>
+                </Button>
+                <Button variant="outline" className="font-medium" asChild>
+                  <a href="mailto:paulrenaud.raymond@gmail.com">Contact Me</a>
                 </Button>
               </div>
             </div>
@@ -51,7 +53,7 @@ export default function Hero({ heroContent, allProjects = [] }: HeroProps) {
             <div className="w-full md:w-3/5 md:pl-0 md:-ml-8">
               <div className="relative rounded-lg overflow-hidden border border-gray-200 shadow-lg">
                 {/* Project image with frame */}
-                <div className="relative aspect-[16/9] w-full">
+                <div className="relative aspect-[16/8.5] w-full">
                   <Image
                     src={image || "/placeholder.svg"}
                     alt={title}
@@ -90,7 +92,7 @@ export default function Hero({ heroContent, allProjects = [] }: HeroProps) {
       </section>
 
       {/* Bio Section - Moved below hero */}
-      <div className="container mx-auto px-4 py-6 bg-white border-t border-gray-100 font-sans">
+      <div className="container mx-auto px-4 py-4 bg-white border-t border-gray-100 font-sans">
         <div className="flex items-center space-x-4">
           <div className="h-1 w-12 bg-blue-600"></div>
           <p className="text-sm text-gray-600 font-normal">

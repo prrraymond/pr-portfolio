@@ -106,12 +106,9 @@ export function getSkillsForDisplay(item: ContentItem): string[] {
     return item.skillCategories
   }
 
-  // Third try: Use skills array if it exists and items don't look like IDs
+  // Third try: Use skills array if it exists and map IDs to display names
   if (Array.isArray(item.skills) && item.skills.length > 0) {
-    const nonIdSkills = item.skills.filter((skill) => !skill.match(/^rec[a-zA-Z0-9]+$/))
-    if (nonIdSkills.length > 0) {
-      return nonIdSkills
-    }
+    return item.skills.map(getSkillDisplayName)
   }
 
   // Fallback: Use the item type

@@ -16,6 +16,7 @@ export interface ProjectImage {
 export interface ToolItem {
   name: string
   logo?: string
+  originalId?: string
 }
 
 export interface ContentItem {
@@ -31,18 +32,18 @@ export interface ContentItem {
   eraCss?: string
   startYear: string
   sortOrder: number
-  locationSort?: number // Changed from locationOrder to locationSort
+  locationSort?: number
   isHero: boolean
   content?: string
   link?: string
   location: string
   skills: string[]
-  skillNames?: string // Added skillNames field for comma-separated skills
+  skillNames?: string
   skillCategories: string[]
   tools: ToolItem[]
   projectImages: ProjectImage[]
   hideAll: boolean
-  isFounder: boolean // New field to explicitly identify Founder records
+  isFounder: boolean
 }
 
 export interface Category {

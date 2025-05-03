@@ -70,8 +70,8 @@ export default function TimelineSelector({ timePeriods, selectedEra, onSelectEra
   }, [selectedEra])
 
   return (
-    <div className="relative px-4 md:px-8">
-      <h2 className="text-3xl font-bold mb-6 text-center">Explore By Era</h2>
+    <div className="relative px-4 md:px-6">
+      <h2 className="text-2xl font-bold mb-4 text-center">Explore By Era</h2>
 
       <div className="relative">
         {canScrollLeft && (
@@ -101,7 +101,7 @@ export default function TimelineSelector({ timePeriods, selectedEra, onSelectEra
                 >
                   <Button
                     variant={isSelected ? "default" : "outline"}
-                    className={`h-auto py-3 px-4 flex flex-col items-center ${
+                    className={`h-auto py-2 px-3 flex flex-col items-center ${
                       isSelected ? eraStyles.button : "border-gray-300"
                     }`}
                     onClick={() => onSelectEra(period.id)}
@@ -127,7 +127,7 @@ export default function TimelineSelector({ timePeriods, selectedEra, onSelectEra
         )}
       </div>
 
-      <div className="mt-8 max-w-3xl mx-auto text-center">
+      <div className="mt-6 max-w-3xl mx-auto text-center">
         <h3 className="text-xl font-semibold mb-2">{timePeriods.find((p) => p.id === selectedEra)?.name}</h3>
         <p className="text-gray-600">{timePeriods.find((p) => p.id === selectedEra)?.aesthetic}</p>
       </div>

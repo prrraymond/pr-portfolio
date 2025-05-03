@@ -42,11 +42,11 @@ export default function ContentRows() {
 
   return (
     <div id="content" className="pt-8 pb-16 bg-white" key={refreshKey}>
-      <div className="px-4 md:px-12 flex justify-between items-center">
-        <h2 className="text-2xl md:text-3xl font-bold mb-6">Explore by Category</h2>
+      <div className="px-4 md:px-8 flex justify-between items-center">
+        <h2 className="text-xl md:text-2xl font-bold mb-4">Explore by Category</h2>
 
         {/* Add refresh button */}
-        <Button variant="outline" size="sm" onClick={handleRefresh} className="mb-6 flex items-center gap-1">
+        <Button variant="outline" size="sm" onClick={handleRefresh} className="mb-4 flex items-center gap-1">
           <RefreshCw className="h-4 w-4" />
           Refresh Content
         </Button>
@@ -62,7 +62,7 @@ export default function ContentRows() {
         </div>
       )}
 
-      <div className="mt-12 space-y-20">
+      <div className="mt-8 space-y-16">
         {filteredCategories.map(
           (category) =>
             category.items.length > 0 && (

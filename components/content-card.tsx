@@ -47,18 +47,18 @@ export default function ContentCard({ item, isHomePage = false }: ContentCardPro
   }, [item.image, item.title, item.id, item.recordId])
 
   return (
-    <Link href={`/experience/${item.id}`}>
-      <Card
-        className={`w-72 md:w-80 h-96 overflow-hidden cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-xl netflix-card ${
-          isHomePage ? "font-sans" : ""
-        }`}
-        style={{
-          background: eraStyles.container.includes("bg-") ? undefined : eraStyles.container,
-          color: eraStyles.body.includes("text-") ? undefined : eraStyles.body,
-          borderLeft: `4px solid ${eraStyles.accent.includes("bg-") ? "var(--primary)" : eraStyles.accent.replace("bg-", "")}`,
-        }}
-      >
-        <div className="relative h-48 w-full overflow-hidden">
+    <Card
+      className={`w-full h-80 overflow-hidden cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-xl netflix-card ${
+        isHomePage ? "font-sans" : ""
+      }`}
+      style={{
+        background: eraStyles.container.includes("bg-") ? undefined : eraStyles.container,
+        color: eraStyles.body.includes("text-") ? undefined : eraStyles.body,
+        borderLeft: `4px solid ${eraStyles.accent.includes("bg-") ? "var(--primary)" : eraStyles.accent.replace("bg-", "")}`,
+      }}
+    >
+      <Link href={`/experience/${item.id}`} className="block h-full">
+        <div className="relative h-40 w-full overflow-hidden">
           {imageUrl && (
             <Image
               src={
@@ -88,7 +88,7 @@ export default function ContentCard({ item, isHomePage = false }: ContentCardPro
             </div>
           )}
         </div>
-        <CardContent className="p-4">
+        <CardContent className="p-3">
           {/* Company logo and title row */}
           <div className="flex items-center mb-2">
             {item.logo && (
@@ -96,7 +96,7 @@ export default function ContentCard({ item, isHomePage = false }: ContentCardPro
                 <Image src={item.logo || "/placeholder.svg"} alt={item.company || ""} fill className="object-contain" />
               </div>
             )}
-            <h3 className={`text-xl ${isHomePage ? "font-bold font-sans" : eraStyles.header}`}>
+            <h3 className={`text-lg ${isHomePage ? "font-bold font-sans" : eraStyles.header}`}>
               {item.title}
               {item.title === "Founder" && item.company ? ` at ${item.company}` : ""}
             </h3>
@@ -137,7 +137,7 @@ export default function ContentCard({ item, isHomePage = false }: ContentCardPro
             )}
           </div>
         </CardContent>
-      </Card>
-    </Link>
+      </Link>
+    </Card>
   )
 }

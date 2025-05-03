@@ -262,8 +262,8 @@ export default function ContentSection({ initialCategories }: ContentSectionProp
     <section className="bg-white pt-4 pb-8" id="content">
       <div className="flex">
         {/* Left sidebar - Journey navigation */}
-        <div className="hidden md:block w-48 lg:w-56 flex-shrink-0 border-r border-gray-200 pr-4">
-          <h3 className="text-xl font-bold mb-6 text-gray-800 font-sans">Journey</h3>
+        <div className="hidden md:block w-40 lg:w-48 flex-shrink-0 border-r border-gray-200 pr-3">
+          <h3 className="text-lg font-bold mb-4 text-gray-800 font-sans">Journey</h3>
 
           {/* Debug toggle - only shown when debug is true */}
           {debug && (
@@ -275,7 +275,7 @@ export default function ContentSection({ initialCategories }: ContentSectionProp
             </div>
           )}
 
-          <ul className="space-y-2">
+          <ul className="space-y-1.5">
             {locationFilters.map((location) => {
               const isSelected = selectedLocationSort === location.locationSort
               const era = locationSortToEra[location.locationSort] || "unknown"
@@ -289,7 +289,7 @@ export default function ContentSection({ initialCategories }: ContentSectionProp
               return (
                 <li key={`location-${location.locationSort}`}>
                   <button
-                    className={`w-full text-left py-2 px-3 rounded-md transition-all duration-300 ${
+                    className={`w-full text-left py-1.5 px-2.5 rounded-md transition-all duration-300 ${
                       isSelected ? selectedBgClass : hoverBgClass
                     }`}
                     onClick={() => selectLocation(location.locationSort)}
@@ -356,9 +356,9 @@ export default function ContentSection({ initialCategories }: ContentSectionProp
         </div>
 
         {/* Main content area */}
-        <div className="flex-1 pl-0 md:pl-6 overflow-hidden">
+        <div className="flex-1 pl-0 md:pl-4 overflow-hidden">
           {/* Filter buttons */}
-          <div className="mb-6 flex overflow-x-auto pb-2 scrollbar-hide">
+          <div className="mb-4 flex overflow-x-auto pb-2 scrollbar-hide">
             <Button
               variant={selectedCategory === "all" ? "default" : "outline"}
               className="mr-2 whitespace-nowrap font-sans font-medium"
@@ -404,25 +404,25 @@ export default function ContentSection({ initialCategories }: ContentSectionProp
                   if (isSelectedPhase) {
                     switch (era) {
                       case "2004-2007":
-                        borderClass = "ring-yellow-500"
+                        borderClass = "border-yellow-500"
                         break
                       case "2008-2011":
-                        borderClass = "ring-gray-500"
+                        borderClass = "border-gray-500"
                         break
                       case "2012-2015":
-                        borderClass = "ring-amber-700"
+                        borderClass = "border-amber-700"
                         break
                       case "2016-2019":
-                        borderClass = "ring-purple-500"
+                        borderClass = "border-purple-500"
                         break
                       case "2020-2022":
-                        borderClass = "ring-gray-400"
+                        borderClass = "border-gray-400"
                         break
                       case "2023-2025":
-                        borderClass = "ring-blue-500"
+                        borderClass = "border-blue-500"
                         break
                       default:
-                        borderClass = "ring-blue-400"
+                        borderClass = "border-blue-400"
                     }
                   }
 
@@ -430,11 +430,17 @@ export default function ContentSection({ initialCategories }: ContentSectionProp
                     <div
                       key={item.id}
                       id={`card-${item.id}`}
-                      className="flex-shrink-0 w-72 md:w-80"
+                      className="flex-shrink-0 w-64 md:w-72"
                       data-index={index}
                       data-location-sort={item.locationSort}
                     >
-                      <div className={isSelectedPhase ? `ring-2 ${borderClass} rounded-lg` : ""}>
+                      <div
+                        className={
+                          isSelectedPhase
+                            ? `overflow-hidden rounded-lg ${borderClass} border-2`
+                            : "overflow-hidden rounded-lg"
+                        }
+                      >
                         <ContentCard item={item} isHomePage={true} />
                       </div>
                     </div>

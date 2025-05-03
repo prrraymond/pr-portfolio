@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { revalidatePath } from "next/cache"
+import { revalidatePath, revalidateTag } from "next/cache"
 
 // This is a simple API route that can be called to revalidate the cache
 export async function POST(request: NextRequest) {
@@ -17,7 +17,8 @@ export async function POST(request: NextRequest) {
 
     // Revalidate the home page and experience pages
     revalidatePath("/")
-    revalidatePath("/experience/[slug]")
+    revalidatePath("/experience/[slug]", "page")
+    revalidateTag("experiences")
 
     return NextResponse.json({ revalidated: true, now: Date.now() })
   } catch (err) {
@@ -28,11 +29,31 @@ export async function POST(request: NextRequest) {
 // Add a GET route for easier testing
 export async function GET(request: NextRequest) {
   try {
-    // Revalidate the home page and experience pages
-    revalidatePath("/")
-    revalidatePath("/experience/[slug]")
+    // Get the slug parameter if provided
+    const { searchParams } = new URL(request.url)
+    const slug = searchParams.get("slug")
 
-    return NextResponse.json({ revalidated: true, now: Date.now() })
+    // Revalidate everything
+    revalidatePath("/", "layout")
+    revalidatePath("/experience", "layout")
+    revalidatePath("/experience/[slug]", "page")
+    revalidateTag("experiences")
+
+    // If a specific slug is provided, revalidate that page too
+    if (slug) {
+      revalidatePath(`/experience/${slug}`, "page")
+    }
+
+    // Force a complete revalidation
+    const timestamp = Date.now()
+
+    return NextResponse.json({
+      revalidated: true,
+      now: timestamp,
+      message: slug
+        ? `Successfully revalidated all pages and layouts, including /experience/${slug}`
+        : "Successfully revalidated all pages and layouts",
+    })
   } catch (err) {
     return NextResponse.json({ message: "Error revalidating", error: err }, { status: 500 })
   }
