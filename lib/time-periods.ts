@@ -18,7 +18,7 @@ export const timePeriods: TimePeriod[] = [
     visualElements: "Film grain, confession-style direct address, fourth wall breaks, gritty textures",
   },
   {
-    id: "2012-2015",
+    id: "2012-2016", // Updated from 2012-2015 to 2012-2016
     name: "Prestige Drama & Social",
     aesthetic: "Cinematic widescreen compositions, carefully constructed frames",
     colorPalette: "Period-specific color grading, rich contrasty tones, vintage warmth",
@@ -26,7 +26,7 @@ export const timePeriods: TimePeriod[] = [
     visualElements: "Instagram-style filters, letterboxing, ornate typography, carefully composed shots",
   },
   {
-    id: "2016-2019",
+    id: "2017-2019", // Updated from 2016-2019 to 2017-2019
     name: "Afrofuturism & Nostalgia",
     aesthetic: "Cultural celebration, bold patterns, retro-futurism",
     colorPalette: "Neon pinks/blues, deep contrasts, rich vibrant jewel tones",

@@ -1,8 +1,8 @@
+import { getAllContent } from "@/lib/airtable"
 import Hero from "@/components/hero"
 import ContentSection from "@/components/content-section"
 import Footer from "@/components/footer"
 import AiAssistant from "@/components/ai-assistant"
-import { getAllContent } from "@/lib/airtable"
 
 export default async function Home() {
   // Fetch content from Airtable

@@ -8,6 +8,7 @@ import { Bug, X, RefreshCw, ExternalLink } from "lucide-react"
 
 export default function DebugPanel() {
   const [isOpen, setIsOpen] = useState(false)
+  const [buttonVisible, setButtonVisible] = useState(false)
   const [recordId, setRecordId] = useState("")
   const [founderReport, setFounderReport] = useState<any>(null)
   const [recordData, setRecordData] = useState<any>(null)
@@ -81,6 +82,11 @@ export default function DebugPanel() {
   }, [isOpen])
 
   if (!isOpen) {
+    // Only render the button if buttonVisible is true
+    if (!buttonVisible) {
+      return null
+    }
+
     return (
       <Button
         variant="outline"

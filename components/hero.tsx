@@ -40,9 +40,17 @@ export default function Hero({ heroContent, allProjects = [] }: HeroProps) {
               </p>
 
               <div className="flex space-x-4">
-                <Button className="bg-blue-600 hover:bg-blue-700 font-medium">
-                  <Link href="/#content">View Experiences</Link>
-                </Button>
+                <button
+                  onClick={() => {
+                    const contentSection = document.getElementById("content")
+                    if (contentSection) {
+                      contentSection.scrollIntoView({ behavior: "smooth" })
+                    }
+                  }}
+                  className="bg-white text-black font-bold py-2 px-4 rounded hover:bg-gray-200 transition"
+                >
+                  View Experiences
+                </button>
                 <Button variant="outline" className="font-medium" asChild>
                   <a href="mailto:paulrenaud.raymond@gmail.com">Contact Me</a>
                 </Button>

@@ -3,7 +3,7 @@
 import type React from "react"
 import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import ContentCard from "@/components/content-card"
 import type { Category } from "@/lib/types"
 
@@ -31,15 +31,15 @@ function getLocationDisplayName(locationId: string): string {
   )
 }
 
-// Map locationSort to era for styling
-const locationSortToEra: Record<number, string> = {
+// Map locationSort to era for styling - Export this for debugging
+export const locationSortToEra: Record<number, string> = {
   1: "2004-2007", // Providence
   2: "2008-2011", // NYC/Detroit/Cleveland
-  3: "2012-2015", // First Miami
-  4: "2016-2019", // New Haven
-  5: "2016-2019", // Second Miami
-  6: "2020-2022", // Third Miami (if exists)
-  7: "2020-2022", // Another location if exists
+  3: "2012-2016", // First Miami - Prestige Drama era
+  4: "2012-2016", // New Haven - Prestige Drama era
+  5: "2012-2016", // Second Miami - Prestige Drama era
+  6: "2012-2016", // New Haven (Seminar Leader) - Updated to Prestige Drama era
+  7: "2017-2019", // Third Miami - Updated to Afrofuturism era
   8: "2023-2025", // NYC
 }
 
@@ -50,11 +50,11 @@ function getEraBackgroundColor(era: string): string {
       return "bg-yellow-100 border-l-4 border-yellow-500"
     case "2008-2011": // NYC/Detroit/Cleveland - Neutral Gray
       return "bg-gray-100 border-l-4 border-gray-500"
-    case "2012-2015": // First Miami - Amber/Brown
+    case "2012-2016": // First Miami, New Haven, Second Miami - Prestige Drama era - Amber/Brown
       return "bg-amber-100 border-l-4 border-amber-700"
-    case "2016-2019": // New Haven, Second Miami - Purple
+    case "2017-2019": // Third Miami - Afrofuturism era - Purple
       return "bg-purple-100 border-l-4 border-purple-500"
-    case "2020-2022": // Third Miami - Light Gray
+    case "2020-2022": // Fourth Miami - Light Gray
       return "bg-gray-100 border-l-4 border-gray-400"
     case "2023-2025": // NYC - Light Blue
       return "bg-blue-100 border-l-4 border-blue-500"
@@ -70,11 +70,11 @@ function getEraHoverColor(era: string): string {
       return "hover:bg-yellow-50"
     case "2008-2011": // NYC/Detroit/Cleveland - Neutral Gray
       return "hover:bg-gray-50"
-    case "2012-2015": // First Miami - Amber/Brown
+    case "2012-2016": // First Miami, New Haven, Second Miami - Prestige Drama era - Amber/Brown
       return "hover:bg-amber-50"
-    case "2016-2019": // New Haven, Second Miami - Purple
+    case "2017-2019": // Third Miami - Afrofuturism era - Purple
       return "hover:bg-purple-50"
-    case "2020-2022": // Third Miami - Light Gray
+    case "2020-2022": // Fourth Miami - Light Gray
       return "hover:bg-gray-50"
     case "2023-2025": // NYC - Light Blue
       return "hover:bg-blue-50"
@@ -199,6 +199,9 @@ export default function ContentSection({ initialCategories }: ContentSectionProp
     // Get the era for this locationSort
     const era = locationSortToEra[locationSort] || "2023-2025"
 
+    // Log for debugging
+    console.log(`Rendering location ${name} with sort ${locationSort}, era: ${era}`)
+
     switch (era) {
       case "2004-2007": // Providence
         return (
@@ -215,11 +218,11 @@ export default function ContentSection({ initialCategories }: ContentSectionProp
         )
       case "2008-2011": // NYC/Detroit/Cleveland
         return <span style={{ fontFamily: "Georgia, serif", color: "#374151" }}>{name}</span>
-      case "2012-2015": // First Miami
+      case "2012-2016": // First Miami, New Haven, Second Miami - Prestige Drama era
         return (
           <span style={{ fontFamily: "Times New Roman, serif", fontStyle: "italic", color: "#92400e" }}>{name}</span>
         )
-      case "2016-2019": // New Haven and Second Miami
+      case "2017-2019": // Third Miami - Afrofuturism era
         return (
           <span
             style={{
@@ -232,7 +235,7 @@ export default function ContentSection({ initialCategories }: ContentSectionProp
             {name}
           </span>
         )
-      case "2020-2022": // Third Miami
+      case "2020-2022": // Fourth Miami
         return (
           <span
             style={{ fontFamily: "Helvetica, sans-serif", fontWeight: 300, letterSpacing: "0.5px", color: "#4b5563" }}
@@ -265,15 +268,12 @@ export default function ContentSection({ initialCategories }: ContentSectionProp
         <div className="hidden md:block w-40 lg:w-48 flex-shrink-0 border-r border-gray-200 pr-3">
           <h3 className="text-lg font-bold mb-4 text-gray-800 font-sans">Journey</h3>
 
-          {/* Debug toggle - only shown when debug is true */}
-          {debug && (
-            <div className="mb-4 p-2 bg-gray-100 rounded text-xs">
-              <button onClick={() => setDebug(!debug)} className="text-blue-600 underline mb-2">
-                Hide Debug
-              </button>
-              <div>Debug mode enabled</div>
-            </div>
-          )}
+          {/* Debug toggle */}
+          <div className="mb-4">
+            <button onClick={() => setDebug(!debug)} className="text-blue-600 underline text-sm">
+              {debug ? "Hide Debug" : "Show Debug"}
+            </button>
+          </div>
 
           <ul className="space-y-1.5">
             {locationFilters.map((location) => {
@@ -295,6 +295,7 @@ export default function ContentSection({ initialCategories }: ContentSectionProp
                     onClick={() => selectLocation(location.locationSort)}
                     data-location-sort={location.locationSort}
                     data-location={location.location}
+                    data-era={era}
                   >
                     {/* Use the renderLocationText function to apply styling based on locationSort */}
                     {renderLocationText(location.locationSort, location.name)}
@@ -339,9 +340,9 @@ export default function ContentSection({ initialCategories }: ContentSectionProp
                         ? "Impact, sans-serif"
                         : era === "2008-2011"
                           ? "Georgia, serif"
-                          : era === "2012-2015"
+                          : era === "2012-2016"
                             ? "Times New Roman, serif"
-                            : era === "2016-2019"
+                            : era === "2017-2019"
                               ? "Courier New, monospace"
                               : era === "2020-2022"
                                 ? "Helvetica, sans-serif"
@@ -399,6 +400,11 @@ export default function ContentSection({ initialCategories }: ContentSectionProp
                   const isSelectedPhase = (item.locationSort || 999) === selectedLocationSort
                   const era = locationSortToEra[item.locationSort || 999] || "2023-2025"
 
+                  // Debug logging
+                  if (debug) {
+                    console.log(`Card ${item.title}: locationSort=${item.locationSort}, era=${era}`)
+                  }
+
                   // Get era-specific border color for selected cards
                   let borderClass = ""
                   if (isSelectedPhase) {
@@ -409,10 +415,10 @@ export default function ContentSection({ initialCategories }: ContentSectionProp
                       case "2008-2011":
                         borderClass = "border-gray-500"
                         break
-                      case "2012-2015":
+                      case "2012-2016":
                         borderClass = "border-amber-700"
                         break
-                      case "2016-2019":
+                      case "2017-2019":
                         borderClass = "border-purple-500"
                         break
                       case "2020-2022":
@@ -433,6 +439,7 @@ export default function ContentSection({ initialCategories }: ContentSectionProp
                       className="flex-shrink-0 w-64 md:w-72"
                       data-index={index}
                       data-location-sort={item.locationSort}
+                      data-era={era}
                     >
                       <div
                         className={
@@ -476,10 +483,10 @@ export default function ContentSection({ initialCategories }: ContentSectionProp
                     case "2008-2011":
                       dotColor = "bg-gray-500"
                       break
-                    case "2012-2015":
+                    case "2012-2016":
                       dotColor = "bg-amber-700"
                       break
-                    case "2016-2019":
+                    case "2017-2019":
                       dotColor = "bg-purple-500"
                       break
                     case "2020-2022":
@@ -497,6 +504,8 @@ export default function ContentSection({ initialCategories }: ContentSectionProp
                     className={`w-2 h-2 rounded-full transition-all ${isActive ? `${dotColor} w-4` : "bg-gray-300"}`}
                     onClick={() => selectLocation(location.locationSort)}
                     aria-label={`Go to ${location.name}`}
+                    data-location-sort={location.locationSort}
+                    data-era={era}
                   />
                 )
               })}

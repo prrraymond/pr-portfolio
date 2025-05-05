@@ -1,29 +1,9 @@
 "use client"
 
 import Link from "next/link"
-import { Mail, Linkedin, Instagram, RefreshCw } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { Mail, Linkedin, Instagram } from "lucide-react"
 
 export default function Footer() {
-  // Function to trigger revalidation
-  const handleRevalidate = async () => {
-    try {
-      const response = await fetch("/api/revalidate", {
-        method: "GET",
-      })
-
-      if (response.ok) {
-        alert("Cache cleared successfully! Refresh the page to see changes.")
-      } else {
-        alert("Failed to clear cache. Check console for details.")
-        console.error("Revalidation failed:", await response.text())
-      }
-    } catch (error) {
-      console.error("Error during revalidation:", error)
-      alert("Error clearing cache. Check console for details.")
-    }
-  }
-
   return (
     <footer className="bg-gray-100 py-12 mt-16 font-sans">
       <div className="container mx-auto px-4 md:px-8">
@@ -68,17 +48,6 @@ export default function Footer() {
               Built with v0, Vercel, Cloudinary, and Airtable and inspired by Disney+ and WandaVision
             </p>
           </div>
-
-          {/* Add revalidation button */}
-          <Button
-            variant="outline"
-            size="sm"
-            className="mt-4 md:mt-0 flex items-center gap-2"
-            onClick={handleRevalidate}
-          >
-            <RefreshCw className="h-4 w-4" />
-            Refresh Content
-          </Button>
         </div>
       </div>
     </footer>

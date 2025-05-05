@@ -216,10 +216,10 @@ export function transformAirtableRecords(records: AirtableRecord[]): ContentItem
           era = "2004-2007"
         } else if (startYear >= 2008 && startYear <= 2011) {
           era = "2008-2011"
-        } else if (startYear >= 2012 && startYear <= 2015) {
-          era = "2012-2015"
-        } else if (startYear >= 2016 && startYear <= 2019) {
-          era = "2016-2019"
+        } else if (startYear >= 2012 && startYear <= 2016) {
+          era = "2012-2016"
+        } else if (startYear >= 2017 && startYear <= 2019) {
+          era = "2017-2019"
         } else if (startYear >= 2020 && startYear <= 2022) {
           era = "2020-2022"
         } else if (startYear >= 2023) {

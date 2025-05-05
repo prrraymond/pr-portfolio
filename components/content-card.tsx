@@ -7,6 +7,7 @@ import { getEraStyles } from "@/lib/era-styles"
 import Link from "next/link"
 import { getSkillsForDisplay } from "@/lib/skills-helper"
 import { useState, useEffect } from "react"
+import { locationSortToEra } from "@/components/content-section"
 
 interface ContentCardProps {
   item: ContentItem
@@ -14,8 +15,12 @@ interface ContentCardProps {
 }
 
 export default function ContentCard({ item, isHomePage = false }: ContentCardProps) {
-  // Use the item's own era for styling
-  const eraStyles = getEraStyles(item.era)
+  // Use the locationSortToEra mapping to get the correct era based on locationSort
+  // This ensures consistency with the Journey panel
+  const mappedEra = item.locationSort ? locationSortToEra[item.locationSort] : item.era
+
+  // Use the mapped era for styling, falling back to the item's own era if no mapping exists
+  const eraStyles = getEraStyles(mappedEra || item.era)
 
   // State to track image loading errors
   const [imageError, setImageError] = useState(false)
@@ -56,6 +61,9 @@ export default function ContentCard({ item, isHomePage = false }: ContentCardPro
         color: eraStyles.body.includes("text-") ? undefined : eraStyles.body,
         borderLeft: `4px solid ${eraStyles.accent.includes("bg-") ? "var(--primary)" : eraStyles.accent.replace("bg-", "")}`,
       }}
+      data-location-sort={item.locationSort}
+      data-original-era={item.era}
+      data-mapped-era={mappedEra}
     >
       <Link href={`/experience/${item.id}`} className="block h-full">
         <div className="relative h-40 w-full overflow-hidden">

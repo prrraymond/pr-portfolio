@@ -1,80 +1,84 @@
-import type { EraStyles } from "@/lib/types"
+// Define the era styles for different time periods
+// These styles are used to give each era a distinct visual identity
 
-const eraStyles: Record<string, EraStyles> = {
-  // 2004-2007: Hip-Hop & Reality TV Golden Age
-  "2004-2007": {
-    container: "bg-black text-white",
-    header: "text-yellow-400 font-bold tracking-tight",
-    body: "font-sans text-gray-200",
-    panel: "bg-gray-900 border-2 border-yellow-400 shadow-lg",
-    accent: "bg-gradient-to-r from-yellow-500 to-yellow-300",
-    button:
-      "bg-yellow-400 text-black font-bold uppercase tracking-wider shadow-lg transform hover:scale-105 transition duration-300",
-    badge: "bg-yellow-900/50 text-yellow-300 hover:bg-yellow-800/50",
-    filter: "brightness-110 contrast-125",
-  },
-
-  // 2008-2011: Premium Cable & Comedy Renaissance
-  "2008-2011": {
-    container: "bg-gray-900 text-gray-200",
-    header: "text-white font-medium tracking-wide",
-    body: "font-serif text-gray-300",
-    panel: "bg-gray-800 border border-gray-600 shadow-md",
-    accent: "bg-gray-600",
-    button: "bg-gray-700 text-white hover:bg-gray-600 transition duration-300",
-    badge: "bg-gray-700 text-gray-300 hover:bg-gray-600",
-    filter: "sepia-[0.25] grayscale-[0.1]",
-  },
-
-  // 2012-2015: Prestige Drama & Social Media Influence
-  "2012-2015": {
-    container: "bg-amber-50 text-gray-800",
-    header: "text-amber-800 font-serif italic",
-    body: "font-light text-gray-700",
-    panel: "bg-white border border-amber-300 shadow-md",
-    accent: "bg-amber-800",
-    button: "bg-amber-800 text-white uppercase tracking-wider hover:bg-amber-900 transition duration-300",
-    badge: "bg-amber-100 text-amber-800 hover:bg-amber-200",
-    filter: "contrast-110 saturate-110",
-  },
-
-  // 2016-2019: Afrofuturism & Nostalgic Revival
-  "2016-2019": {
-    container: "bg-purple-900 text-pink-200",
-    header: "text-pink-300 font-bold tracking-widest uppercase",
-    body: "font-mono text-purple-100",
-    panel: "bg-gradient-to-br from-purple-800 to-blue-800 border border-pink-500 shadow-lg",
-    accent: "bg-gradient-to-r from-pink-500 to-blue-500",
-    button: "bg-pink-500 text-white font-bold rounded-full shadow-lg hover:bg-pink-600 transition duration-300",
-    badge: "bg-blue-900/70 text-pink-300 hover:bg-blue-800/70",
-    filter: "saturate-150 brightness-110",
-  },
-
-  // 2020-2022: Pandemic Intimacy & Escapism
-  "2020-2022": {
-    container: "bg-gray-50 text-gray-600",
-    header: "text-gray-700 font-light tracking-wide",
-    body: "font-sans text-gray-600",
-    panel: "bg-white rounded-xl shadow-sm border border-gray-200",
-    accent: "bg-green-100",
-    button: "bg-white text-gray-800 border border-gray-300 rounded-full hover:bg-gray-50 transition duration-300",
-    badge: "bg-gray-100 text-gray-600 hover:bg-gray-200",
-    filter: "brightness-105 contrast-95 saturate-90",
-  },
-
-  // 2023-2025: Psychological Complexity & High Concept
-  "2023-2025": {
-    container: "bg-white text-black",
-    header: "text-blue-600 font-sans font-light tracking-tight",
-    body: "font-sans text-gray-800",
-    panel: "bg-white border-l-4 border-blue-500 shadow-md",
+// Function to get era-specific styles
+export function getEraStyles(era: string | undefined) {
+  // Default styles
+  const defaultStyles = {
+    container: "bg-gray-50",
+    header: "font-sans font-bold text-gray-900",
+    body: "text-gray-700",
     accent: "bg-blue-500",
-    button: "bg-white text-blue-500 border border-blue-500 hover:bg-blue-50 transition duration-300",
-    badge: "bg-blue-50 text-blue-600 hover:bg-blue-100",
-    filter: "contrast-110 brightness-105",
-  },
-}
+    badge: "bg-blue-100 text-blue-800 hover:bg-blue-200",
+    filter: "",
+  }
 
-export function getEraStyles(era: string): EraStyles {
-  return eraStyles[era] || eraStyles["2023-2025"] // Default to latest era if not found
+  // Log the era for debugging
+  console.log(`Getting styles for era: ${era}`)
+
+  // Return era-specific styles
+  switch (era) {
+    case "2004-2007": // Providence - Gold/Yellow theme
+      return {
+        container: "bg-yellow-50",
+        header: "font-impact font-bold uppercase text-yellow-900",
+        body: "text-yellow-800",
+        accent: "bg-yellow-500",
+        badge: "bg-yellow-100 text-yellow-800 hover:bg-yellow-200",
+        filter: "contrast-125",
+      }
+
+    case "2008-2011": // NYC/Detroit/Cleveland - Neutral Gray theme
+      return {
+        container: "bg-gray-50",
+        header: "font-georgia text-gray-900",
+        body: "text-gray-700",
+        accent: "bg-gray-500",
+        badge: "bg-gray-100 text-gray-800 hover:bg-gray-200",
+        filter: "grayscale-[30%]",
+      }
+
+    case "2012-2016": // First Miami, New Haven, Second Miami - Prestige Drama - Amber/Brown theme
+      return {
+        container: "bg-amber-50",
+        header: "font-times italic text-amber-900",
+        body: "text-amber-800",
+        accent: "bg-amber-700",
+        badge: "bg-amber-100 text-amber-800 hover:bg-amber-200",
+        filter: "sepia-[30%]",
+      }
+
+    case "2017-2019": // Third Miami - Afrofuturism - Purple theme
+      return {
+        container: "bg-purple-50",
+        header: "font-mono uppercase tracking-wide text-purple-900",
+        body: "text-purple-800",
+        accent: "bg-purple-500",
+        badge: "bg-purple-100 text-purple-800 hover:bg-purple-200",
+        filter: "hue-rotate-15",
+      }
+
+    case "2020-2022": // Fourth Miami - Light Gray theme
+      return {
+        container: "bg-slate-50",
+        header: "font-helvetica font-light tracking-tight text-slate-900",
+        body: "text-slate-700",
+        accent: "bg-slate-400",
+        badge: "bg-slate-100 text-slate-800 hover:bg-slate-200",
+        filter: "brightness-105",
+      }
+
+    case "2023-2025": // NYC - Light Blue theme
+      return {
+        container: "bg-blue-50",
+        header: "font-inter tracking-tight text-blue-900",
+        body: "text-blue-700",
+        accent: "bg-blue-500",
+        badge: "bg-blue-100 text-blue-800 hover:bg-blue-200",
+        filter: "saturate-110",
+      }
+
+    default:
+      return defaultStyles
+  }
 }
