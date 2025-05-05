@@ -152,11 +152,69 @@ export default async function ExperiencePage({ params }: { params: { slug: strin
     }
   }
 
+  // Get era-specific pattern/texture for backgrounds
+  const getEraPattern = (era: string) => {
+    switch (era) {
+      case "2004-2007":
+        return "repeating-linear-gradient(45deg, #000 0px, #000 2px, #111 2px, #111 4px)"
+      case "2008-2011":
+        return "linear-gradient(to right, #1f2937, #111827)"
+      case "2012-2015":
+        return "url(\"data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23f59e0b' fillOpacity='0.05' fillRule='evenodd'%3E%3Ccircle cx='3' cy='3' r='3'/%3E%3Ccircle cx='13' cy='13' r='3'/%3E%3C/g%3E%3C/svg%3E\")"
+      case "2016-2019":
+        return "linear-gradient(135deg, #4c1d95 0%, #581c87 100%)"
+      case "2020-2022":
+        return "linear-gradient(to right, #f9fafb, #f3f4f6)"
+      default:
+        return "linear-gradient(to right, #ffffff, #f8fafc)"
+    }
+  }
+
+  // Get era-specific border style
+  const getEraBorderStyle = (era: string) => {
+    switch (era) {
+      case "2004-2007":
+        return `4px solid ${getEraAccentColor(era)}`
+      case "2008-2011":
+        return `2px solid ${getEraAccentColor(era)}`
+      case "2012-2015":
+        return `3px double ${getEraAccentColor(era)}`
+      case "2016-2019":
+        return `4px solid ${getEraAccentColor(era)}`
+      case "2020-2022":
+        return `1px solid ${getEraAccentColor(era)}`
+      default:
+        return `2px solid ${getEraAccentColor(era)}`
+    }
+  }
+
   // Get the background and text colors based on the era
   const bgColor = getEraBackgroundColor(experience.era)
   const textColor = getEraTextColor(experience.era)
   const accentColor = getEraAccentColor(experience.era)
   const fontFamily = getEraFontFamily(experience.era)
+  const pattern = getEraPattern(experience.era)
+  const borderStyle = getEraBorderStyle(experience.era)
+
+  // Get Netflix-style gradient based on era
+  const getNetflixGradient = (era: string) => {
+    switch (era) {
+      case "2004-2007":
+        return "linear-gradient(90deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0.95) 20%, rgba(0,0,0,0.85) 40%, rgba(0,0,0,0.5) 60%, rgba(0,0,0,0) 100%)"
+      case "2008-2011":
+        return "linear-gradient(90deg, rgba(17,24,39,1) 0%, rgba(17,24,39,0.95) 20%, rgba(17,24,39,0.85) 40%, rgba(17,24,39,0.5) 60%, rgba(17,24,39,0) 100%)"
+      case "2012-2015":
+        return "linear-gradient(90deg, rgba(255,251,235,1) 0%, rgba(255,251,235,0.95) 20%, rgba(255,251,235,0.85) 40%, rgba(255,251,235,0.5) 60%, rgba(255,251,235,0) 100%)"
+      case "2016-2019":
+        return "linear-gradient(90deg, rgba(88,28,135,1) 0%, rgba(88,28,135,0.95) 20%, rgba(88,28,135,0.85) 40%, rgba(88,28,135,0.5) 60%, rgba(88,28,135,0) 100%)"
+      case "2020-2022":
+        return "linear-gradient(90deg, rgba(249,250,251,1) 0%, rgba(249,250,251,0.95) 20%, rgba(249,250,251,0.85) 40%, rgba(249,250,251,0.5) 60%, rgba(249,250,251,0) 100%)"
+      default:
+        return "linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0.95) 20%, rgba(255,255,255,0.85) 40%, rgba(255,255,255,0.5) 60%, rgba(255,255,255,0) 100%)"
+    }
+  }
+
+  const netflixGradient = getNetflixGradient(experience.era)
 
   return (
     <>
@@ -171,10 +229,19 @@ export default async function ExperiencePage({ params }: { params: { slug: strin
         }}
         data-era={experience.era}
       >
-        {/* Hero Section */}
-        <div className="relative border-b overflow-hidden">
-          {/* Hero Image Container */}
-          <div className="relative aspect-[21/9] md:aspect-[3/1] w-full">
+        {/* Hero Section with Era-specific styling */}
+        <div
+          className="relative border-b overflow-hidden"
+          style={{
+            borderBottom: borderStyle,
+            background: bgColor,
+            height: "50vh",
+            minHeight: "350px",
+            maxHeight: "500px",
+          }}
+        >
+          {/* Full-width image container */}
+          <div className="absolute inset-0 w-full h-full">
             <Image
               src={
                 experience.image ||
@@ -182,33 +249,88 @@ export default async function ExperiencePage({ params }: { params: { slug: strin
               }
               alt={experience.title}
               fill
-              className={`object-cover ${eraStyles.filter}`}
+              className={`${eraStyles.filter}`}
               priority
               quality={100}
-              sizes="100vw"
               unoptimized={experience.image?.includes("cloudinary.com")}
+              style={{
+                objectFit: "cover",
+                objectPosition: "center",
+              }}
             />
           </div>
 
-          {/* Gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+          {/* Netflix-style gradient overlay */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background: netflixGradient,
+              zIndex: 5,
+            }}
+          />
 
-          {/* Content */}
-          <div className="absolute bottom-0 left-0 w-full p-6 md:p-12 z-10">
-            <div className="max-w-4xl">
+          {/* Content positioned on the left side */}
+          <div className="absolute left-0 top-0 h-full w-full p-6 md:p-12 flex items-center z-10">
+            <div className="max-w-lg">
               <div className="mb-2 flex items-center">
-                <Badge variant="outline" className={`text-xs ${eraStyles.badge} mr-2 bg-white/90`}>
+                <Badge
+                  variant="outline"
+                  className={`text-xs ${eraStyles.badge} mr-2`}
+                  style={{
+                    backgroundColor:
+                      experience.era === "2012-2015" || experience.era === "2020-2022" || experience.era === "2023-2025"
+                        ? "rgba(255, 255, 255, 0.9)"
+                        : "rgba(0, 0, 0, 0.7)",
+                    borderColor: accentColor,
+                  }}
+                >
                   {experience.type.toUpperCase()}
                 </Badge>
-                <span className={`text-sm text-white/90`}>{experience.startYear}</span>
+                <span
+                  className={`text-sm`}
+                  style={{
+                    color:
+                      experience.era === "2012-2015" || experience.era === "2020-2022" || experience.era === "2023-2025"
+                        ? "#1f2937"
+                        : "rgba(255, 255, 255, 0.9)",
+                  }}
+                >
+                  {experience.startYear}
+                </span>
               </div>
 
-              <h1 className={`text-3xl md:text-5xl font-bold mb-4 text-white drop-shadow-md`}>{experience.title}</h1>
+              <h1
+                className={`text-3xl md:text-5xl font-bold mb-4 drop-shadow-md`}
+                style={{
+                  color:
+                    experience.era === "2012-2015" || experience.era === "2020-2022" || experience.era === "2023-2025"
+                      ? "#1f2937"
+                      : "white",
+                  fontFamily: fontFamily,
+                  textTransform:
+                    experience.era === "2004-2007" || experience.era === "2016-2019" ? "uppercase" : "none",
+                  letterSpacing: experience.era === "2016-2019" ? "0.05em" : "normal",
+                  fontStyle: experience.era === "2012-2015" ? "italic" : "normal",
+                }}
+              >
+                {experience.title}
+              </h1>
 
               {experience.company && (
                 <div className="flex items-center space-x-4 mb-6">
                   {experience.logo && (
-                    <div className="h-8 w-8 relative mr-2 bg-white/90 rounded-full p-1">
+                    <div
+                      className="h-8 w-8 relative mr-2 rounded-full p-1"
+                      style={{
+                        backgroundColor:
+                          experience.era === "2012-2015" ||
+                          experience.era === "2020-2022" ||
+                          experience.era === "2023-2025"
+                            ? "rgba(255, 255, 255, 0.9)"
+                            : "rgba(0, 0, 0, 0.7)",
+                        border: `1px solid ${accentColor}`,
+                      }}
+                    >
                       <Image
                         src={experience.logo || "/placeholder.svg"}
                         alt={experience.company}
@@ -217,31 +339,55 @@ export default async function ExperiencePage({ params }: { params: { slug: strin
                       />
                     </div>
                   )}
-                  <span className="text-lg font-medium text-white drop-shadow-md">{experience.company}</span>
+                  <span
+                    className="text-lg font-medium drop-shadow-md"
+                    style={{
+                      color:
+                        experience.era === "2012-2015" ||
+                        experience.era === "2020-2022" ||
+                        experience.era === "2023-2025"
+                          ? "#1f2937"
+                          : "white",
+                    }}
+                  >
+                    {experience.company}
+                  </span>
                 </div>
               )}
 
-              <p className={`text-lg max-w-3xl text-white/90 drop-shadow-md`}>{experience.description}</p>
+              <p
+                className={`text-lg max-w-md drop-shadow-md`}
+                style={{
+                  color:
+                    experience.era === "2012-2015" || experience.era === "2020-2022" || experience.era === "2023-2025"
+                      ? "rgba(31, 41, 55, 0.9)"
+                      : "rgba(255, 255, 255, 0.9)",
+                }}
+              >
+                {experience.description}
+              </p>
             </div>
           </div>
+
+          {/* Era-specific decorative elements */}
+          {experience.era === "2004-2007" && (
+            <div className="absolute top-0 left-0 w-full h-4 z-10" style={{ background: accentColor }}></div>
+          )}
+          {experience.era === "2016-2019" && (
+            <div
+              className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r z-10"
+              style={{
+                backgroundImage: `linear-gradient(to right, ${accentColor}, transparent, ${accentColor})`,
+              }}
+            ></div>
+          )}
         </div>
 
-        {/* Navigation Tabs */}
+        {/* Navigation Tabs with Era-specific styling */}
         <div
           className="border-b sticky top-16 z-20 shadow-sm"
           style={{
-            backgroundColor:
-              experience.era === "2004-2007"
-                ? "#111111"
-                : experience.era === "2008-2011"
-                  ? "#1f2937"
-                  : experience.era === "2012-2015"
-                    ? "#fef3c7"
-                    : experience.era === "2016-2019"
-                      ? "#6b21a8"
-                      : experience.era === "2020-2022"
-                        ? "white"
-                        : "#f8fafc",
+            backgroundColor: bgColor,
             borderColor: accentColor,
           }}
         >
@@ -250,18 +396,7 @@ export default async function ExperiencePage({ params }: { params: { slug: strin
               className="py-4 px-2 border-b-2 font-medium"
               style={{
                 borderColor: accentColor,
-                color:
-                  experience.era === "2004-2007"
-                    ? "#ca8a04"
-                    : experience.era === "2008-2011"
-                      ? "white"
-                      : experience.era === "2012-2015"
-                        ? "#92400e"
-                        : experience.era === "2016-2019"
-                          ? "#fbcfe8"
-                          : experience.era === "2020-2022"
-                            ? "#4b5563"
-                            : "#2563eb",
+                color: accentColor,
               }}
             >
               Overview
