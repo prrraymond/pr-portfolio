@@ -3,6 +3,8 @@ import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
+import { Analytics } from "@vercel/analytics/react"
+import { Suspense } from "react"
 
 // Import fonts that are similar to Netflix's aesthetic
 const sans = Inter({
@@ -27,7 +29,10 @@ export default function RootLayout({
     <html lang="en" className={`${sans.variable}`}>
       <body className="font-sans antialiased">
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
-          {children}
+          <Suspense>
+            {children}
+            <Analytics />
+          </Suspense>
         </ThemeProvider>
       </body>
     </html>
